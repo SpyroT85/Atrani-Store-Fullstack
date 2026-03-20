@@ -27,11 +27,26 @@ app.get('/api/test', async (req, res) => {
   }
 });
 
-// GET all products
+// GET all products (optional category filter)
 app.get('/api/products', async (req, res) => {
+  const { category } = req.query;
   try {
-    const result = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
+    const result = category
+      ? await pool.query('SELECT * FROM products WHERE category=$1 ORDER BY created_at DESC', [category])
+      : await pool.query('SELECT * FROM products ORDER BY created_at DESC');
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET single product by slug
+app.get('/api/products/:slug', async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM products WHERE slug=$1', [slug]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found' });
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

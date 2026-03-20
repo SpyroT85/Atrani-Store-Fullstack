@@ -1,7 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { products } from '@/data/products';
-import type { Products } from '@/types/productTypes';
 import ViewDetailsButton from '@/components/ui/ViewDetailsButton';
 import { Link } from 'react-router-dom';
 
@@ -14,23 +12,10 @@ interface FlatProduct {
   name: string;
   price: number;
   image: string;
-  category: keyof Products;
+  category: string;
 }
 
-function flattenProducts(productsObj: Products): FlatProduct[] {
-  const flat: FlatProduct[] = [];
-  (Object.keys(productsObj) as (keyof Products)[]).forEach((category) => {
-    const arr = productsObj[category];
-    if (Array.isArray(arr)) {
-      arr.forEach((prod) => {
-        flat.push({ id: prod.id, name: prod.name, price: prod.price, image: prod.image, category });
-      });
-    }
-  });
-  return flat;
-}
-
-function getProductPath(category: keyof Products, id: string): string {
+function getProductPath(category: string, id: string): string {
   switch (category) {
     case 'watches/luxury':       return `/watches/luxury/${id}`;
     case 'watches/smartwatches': return `/watches/smartwatches/${id}`;
@@ -54,11 +39,28 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) => {
+  const [allProducts, setAllProducts] = useState<FlatProduct[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => {
+        const mapped: FlatProduct[] = data.map((p: any) => ({
+          id: p.id.toString(),
+          name: p.name,
+          price: parseFloat(p.price),
+          image: p.image_url,
+          category: p.category,
+        }));
+        setAllProducts(mapped);
+      })
+      .catch(() => {});
+  }, []);
+
   const randomProducts = useMemo(() => {
-    const allProducts = flattenProducts(products);
-    const filtered = allProducts.filter((p) => p.id !== currentProductId);
+    const filtered = allProducts.filter(p => p.id !== currentProductId);
     return shuffleArray(filtered).slice(0, 8);
-  }, [currentProductId]);
+  }, [allProducts, currentProductId]);
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -123,53 +125,19 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
     userSelect: 'none',
   });
 
-  // On mobile show 1.3 cards, on desktop show ~4
   const cardWidth = typeof window !== 'undefined' && window.innerWidth < 640 ? '72vw' : '220px';
 
   return (
     <div style={{ width: '100%' }}>
-
-      {/* Section title */}
-      <h2 style={{
-        fontFamily: 'Cormorant Garamond, serif',
-        fontSize: 'clamp(1.4rem, 3vw, 2.2rem)',
-        fontWeight: 300,
-        color: '#1a1208',
-        letterSpacing: '0.01em',
-        marginBottom: '2rem',
-        textAlign: 'center',
-      }}>
+      <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', fontWeight: 300, color: '#1a1208', letterSpacing: '0.01em', marginBottom: '2rem', textAlign: 'center' }}>
         You may also like
       </h2>
 
-      {/* Product carousel */}
       <div style={{ position: 'relative', paddingLeft: '40px', paddingRight: '40px' }}>
+        <button onClick={() => emblaApi?.scrollPrev()} aria-label="Previous" className="hidden sm:block" style={{ ...arrowStyle(canScrollPrev), left: 0 }}>‹</button>
+        <button onClick={() => emblaApi?.scrollNext()} aria-label="Next" className="hidden sm:block" style={{ ...arrowStyle(canScrollNext), right: 0 }}>›</button>
 
-        {/* Previous arrow (desktop only) */}
-        <button
-          onClick={() => emblaApi?.scrollPrev()}
-          aria-label="Previous"
-          className="hidden sm:block"
-          style={{ ...arrowStyle(canScrollPrev), left: 0 }}
-        >
-          ‹
-        </button>
-
-        {/* Next arrow (desktop only) */}
-        <button
-          onClick={() => emblaApi?.scrollNext()}
-          aria-label="Next"
-          className="hidden sm:block"
-          style={{ ...arrowStyle(canScrollNext), right: 0 }}
-        >
-          ›
-        </button>
-
-        {/* Product cards viewport */}
-        <div
-          ref={(el) => { emblaRef(el); (viewportRef as any).current = el; }}
-          style={{ overflow: 'hidden', paddingBottom: '8px' }}
-        >
+        <div ref={(el) => { emblaRef(el); (viewportRef as any).current = el; }} style={{ overflow: 'hidden', paddingBottom: '8px' }}>
           <div style={{ display: 'flex', gap: '16px' }}>
             {randomProducts.map((product) => (
               <div
@@ -183,9 +151,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
                   borderRadius: '4px',
                   overflow: 'hidden',
                   border: '1px solid rgba(200,135,74,0.12)',
-                  boxShadow: hoveredId === product.id
-                    ? '0 12px 36px rgba(60,40,10,0.14)'
-                    : '0 4px 20px rgba(60,40,10,0.07)',
+                  boxShadow: hoveredId === product.id ? '0 12px 36px rgba(60,40,10,0.14)' : '0 4px 20px rgba(60,40,10,0.07)',
                   transform: hoveredId === product.id ? 'translateY(-3px)' : 'translateY(0)',
                   transition: 'box-shadow 0.3s ease, transform 0.3s ease',
                 }}
@@ -195,43 +161,16 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
                     <img
                       src={product.image}
                       alt={product.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transform: hoveredId === product.id ? 'scale(1.05)' : 'scale(1)',
-                        transition: 'transform 0.5s ease',
-                      }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', transform: hoveredId === product.id ? 'scale(1.05)' : 'scale(1)', transition: 'transform 0.5s ease' }}
                       loading="lazy"
                     />
                   </Link>
                 </div>
                 <div style={{ padding: '0.9rem 0.9rem 1rem' }}>
                   <div style={{ width: '24px', height: '1px', background: '#C8874A', marginBottom: '0.5rem' }} />
-                  <p style={{
-                    fontFamily: 'Cormorant Garamond, serif',
-                    fontSize: '0.95rem',
-                    fontWeight: 400,
-                    color: '#1a1208',
-                    lineHeight: 1.25,
-                    marginBottom: '0.3rem',
-                  }}>
-                    {product.name}
-                  </p>
-                  <p style={{
-                    fontFamily: 'Manrope, sans-serif',
-                    fontSize: '0.75rem',
-                    fontWeight: 300,
-                    color: '#9a8a78',
-                    marginBottom: '0.75rem',
-                    letterSpacing: '0.03em',
-                  }}>
-                    €{product.price.toLocaleString('el-GR')}
-                  </p>
-                  <ViewDetailsButton
-                    path={getProductPath(product.category, product.id)}
-                    size="sm"
-                  />
+                  <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.95rem', fontWeight: 400, color: '#1a1208', lineHeight: 1.25, marginBottom: '0.3rem' }}>{product.name}</p>
+                  <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.75rem', fontWeight: 300, color: '#9a8a78', marginBottom: '0.75rem', letterSpacing: '0.03em' }}>€{product.price.toLocaleString('el-GR')}</p>
+                  <ViewDetailsButton path={getProductPath(product.category, product.id)} size="sm" />
                 </div>
               </div>
             ))}
@@ -239,25 +178,10 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
         </div>
       </div>
 
-      {/* Navigation dots */}
       {scrollSnaps.length > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '1.5rem' }}>
           {scrollSnaps.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => emblaApi?.scrollTo(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              style={{
-                width: i === selectedIndex ? '28px' : '6px',
-                height: '6px',
-                borderRadius: '9999px',
-                backgroundColor: i === selectedIndex ? '#C8874A' : '#d1c4b0',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                transition: 'all 0.3s ease',
-              }}
-            />
+            <button key={i} onClick={() => emblaApi?.scrollTo(i)} aria-label={`Go to slide ${i + 1}`} style={{ width: i === selectedIndex ? '28px' : '6px', height: '6px', borderRadius: '9999px', backgroundColor: i === selectedIndex ? '#C8874A' : '#d1c4b0', border: 'none', cursor: 'pointer', padding: 0, transition: 'all 0.3s ease' }} />
           ))}
         </div>
       )}
