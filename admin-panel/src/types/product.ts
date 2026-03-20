@@ -7,4 +7,9 @@ export interface Product {
   description: string;
   code: string;
   slug: string;
+  material?: string;
+  water_resistance?: string;
+  movement?: string;
+  battery?: string;
+  waterproof?: string;
 }

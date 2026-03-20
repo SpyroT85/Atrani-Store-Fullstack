@@ -1,10 +1,8 @@
-import type { Product } from '../types/product';
+import { useProductsContext } from '../context/ProductsContext';
 
-interface StatsCardsProps {
-  products: Product[];
-}
+export default function StatsCards() {
+  const { products } = useProductsContext();
 
-export default function StatsCards({ products }: StatsCardsProps) {
   const watches = products.filter(p => p.category.startsWith('watches'));
   const pens = products.filter(p => p.category.includes('Pens'));
   const other = products.filter(p => p.category === 'compasses' || p.category === 'inkwells');

@@ -1,11 +1,40 @@
 import { useState } from 'react';
+import { FiUpload } from 'react-icons/fi';
 import type { Product } from '../types/product';
 import Button from './Button';
+
 
 const CATEGORIES = [
   'watches', 'watches/luxury', 'watches/smartwatches', 'watches/pocket',
   'quillPens', 'fountainPens', 'compasses', 'inkwells',
 ];
+
+const CATEGORY_FIELDS: Record<string, string[]> = {
+  'watches': ['material', 'water_resistance', 'movement'],
+  'watches/luxury': ['material', 'water_resistance', 'movement'],
+  'watches/smartwatches': ['battery', 'waterproof'],
+  'watches/pocket': ['material', 'movement'],
+  'quillPens': ['material'],
+  'fountainPens': ['material'],
+  'compasses': ['material', 'movement'],
+  'inkwells': ['material'],
+};
+
+const FIELD_LABELS: Record<string, string> = {
+  material: 'Material',
+  water_resistance: 'Water Resistance',
+  movement: 'Movement',
+  battery: 'Battery Life',
+  waterproof: 'Waterproof',
+};
+
+const FIELD_PLACEHOLDERS: Record<string, string> = {
+  material: 'Stainless Steel',
+  water_resistance: '100m (10 ATM)',
+  movement: 'Automatic',
+  battery: '7 days',
+  waterproof: '50m',
+};
 
 interface ProductFormProps {
   initial?: Partial<Product>;
@@ -23,11 +52,36 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
     slug: initial.slug ?? '',
     image_url: initial.image_url ?? '',
     description: initial.description ?? '',
+    material: initial.material ?? '',
+    water_resistance: initial.water_resistance ?? '',
+    movement: initial.movement ?? '',
+    battery: initial.battery ?? '',
+    waterproof: initial.waterproof ?? '',
   });
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   const inputClass = "w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#C8874A]/40 transition";
+
+  const [preview, setPreview] = useState<string>(initial.image_url ?? '');
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      setPreview(data.url);
+      set('image_url', data.url);
+    } catch {
+      alert('Failed to upload image');
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -55,13 +109,36 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
           <input className={inputClass} value={form.slug} onChange={e => set('slug', e.target.value)} placeholder="watches-classic" />
         </div>
         <div className="flex flex-col gap-1.5 col-span-2">
-          <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Image URL</label>
-          <input className={inputClass} value={form.image_url} onChange={e => set('image_url', e.target.value)} placeholder="/images/..." />
+          <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Image</label>
+          <div className="flex items-center gap-3">
+            {preview && (
+              <img src={preview} alt="preview" className="w-16 h-16 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700" />
+            )}
+            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition">
+              <FiUpload size={14} />
+              {preview ? 'Change image' : 'Upload image'}
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+            </label>
+          </div>
         </div>
         <div className="flex flex-col gap-1.5 col-span-2">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Description</label>
           <textarea className={inputClass} rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Product description..." />
         </div>
+
+        {(CATEGORY_FIELDS[form.category] ?? []).map(field => (
+          <div key={field} className="flex flex-col gap-1.5 col-span-2">
+            <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              {FIELD_LABELS[field]}
+            </label>
+            <input
+              className={inputClass}
+              value={(form as any)[field] ?? ''}
+              onChange={e => set(field, e.target.value)}
+              placeholder={FIELD_PLACEHOLDERS[field]}
+            />
+          </div>
+        ))}
       </div>
 
       <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">

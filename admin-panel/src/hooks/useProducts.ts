@@ -11,8 +11,14 @@ export function useProducts() {
   useEffect(() => {
     fetch(`${API_URL}/api/products`)
       .then(res => res.json())
-      .then(data => { setProducts(data); setLoading(false); })
-      .catch(() => { setError('Failed to load products'); setLoading(false); });
+      .then(data => {
+        setProducts(data);
+        setTimeout(() => setLoading(false), 300);
+      })
+      .catch(() => {
+        setError('Failed to load products');
+        setTimeout(() => setLoading(false), 300);
+      });
   }, []);
 
   const deleteProduct = async (id: number, name: string) => {
