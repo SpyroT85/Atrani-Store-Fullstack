@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://api.spyros-tserkezos.dev';
 
 export default function AuthCallback() {
   const [searchParams] = useSearchParams();

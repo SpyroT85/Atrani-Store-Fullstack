@@ -16,7 +16,7 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import AcceptInvite from './pages/AcceptInvite';
 import { Routes, Route } from 'react-router-dom';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://api.spyros-tserkezos.dev';
 
 export default function App() {
   const { products, loading, error, deleteProduct, setProducts } = useProductsContext();

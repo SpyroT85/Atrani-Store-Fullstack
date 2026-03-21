@@ -6,7 +6,7 @@ import FilterDropdown from '../ui/FilterDropdown';
 import SearchInput from '../ui/SearchInput';
 import Pagination from '../ui/Pagination';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://api.spyros-tserkezos.dev';
 
 interface Admin {
   id: number;

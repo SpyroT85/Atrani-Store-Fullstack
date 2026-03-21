@@ -42,7 +42,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
   const [allProducts, setAllProducts] = useState<FlatProduct[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch('https://api.spyros-tserkezos.dev')
       .then(res => res.json())
       .then(data => {
         const mapped: FlatProduct[] = data.map((p: any) => ({

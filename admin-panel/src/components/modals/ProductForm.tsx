@@ -73,7 +73,7 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading,
     const formData = new FormData();
     formData.append('image', file);
     try {
-      const res = await fetch('http://localhost:5000/api/products/upload', {
+      const res = await fetch('https://api.spyros-tserkezos.dev/api/products/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

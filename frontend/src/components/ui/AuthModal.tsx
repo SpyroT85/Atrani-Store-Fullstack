@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { IoClose } from 'react-icons/io5';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://api.spyros-tserkezos.dev';
 
 interface AuthModalProps {
   onClose: () => void;

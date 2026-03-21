@@ -1,6 +1,6 @@
 import type { Watch, Pen, Compass, Inkwell } from '@/types/productTypes';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://api.spyros-tserkezos.dev';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapProduct(p: any) {

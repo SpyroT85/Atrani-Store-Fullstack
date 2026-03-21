@@ -128,7 +128,7 @@ export default function ProductsTable({
                     <img
                       src={product.image_url?.startsWith('http')
                         ? product.image_url
-                        : `http://localhost:5000${product.image_url}`}
+                        : `https://api.spyros-tserkezos.dev${product.image_url}`}
                       alt={product.name}
                       className="w-12 h-12 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700"
                       onError={e => (e.currentTarget.src = '/placeholder.png')}

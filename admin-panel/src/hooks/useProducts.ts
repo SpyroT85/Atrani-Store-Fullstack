@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Product } from '../types/product';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://api.spyros-tserkezos.dev';
 
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([]);
