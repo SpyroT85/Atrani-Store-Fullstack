@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { PiDotsThreeVerticalBold } from 'react-icons/pi';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import Tooltip from './Tooltip';
 
 interface ActionMenuProps {
   onEdit: () => void;

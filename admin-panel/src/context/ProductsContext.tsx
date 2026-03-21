@@ -8,7 +8,7 @@ interface ProductsContextType {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   loading: boolean;
   error: string | null;
-  deleteProduct: (id: number, name: string) => Promise<void>;
+  deleteProduct: (id: number, name: string, token?: string) => Promise<void>;
 }
 
 const ProductsContext = createContext<ProductsContextType | null>(null);

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { FiSun, FiMoon, FiChevronDown, FiLogOut, FiUser } from 'react-icons/fi';
-import Button from './Button';
-import { useTheme } from '../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
+import Button from '../ui/Button';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Topbar() {
   const { dark, toggleDark } = useTheme();

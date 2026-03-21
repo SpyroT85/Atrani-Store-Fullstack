@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { FiTrash2, FiMail, FiX, FiUser, FiMoreVertical, FiEdit2 } from 'react-icons/fi';
-import { useAuth } from '../context/AuthContext';
-import Button from './Button';
+import { useAuth } from '../../context/AuthContext';
+import Button from '../ui/Button';
+import FilterDropdown from '../ui/FilterDropdown';
+import SearchInput from '../ui/SearchInput';
+import Pagination from '../ui/Pagination';
 
 const API_URL = 'http://localhost:5000';
 
@@ -38,6 +41,31 @@ const MOCK_ADMINS: Admin[] = [
   { id: 5, email: 'demo2@atrani.com', role: 'demo', created_at: '2024-03-12T16:00:00Z' },
   { id: 6, email: 'demo3@atrani.com', role: 'demo', created_at: '2024-03-14T08:00:00Z' },
   { id: 7, email: 'demo@atrani-adminpanel.com', role: 'demo', created_at: '2024-03-20T23:00:00Z' },
+  { id: 8, email: 'admin4@atrani.com', role: 'admin', created_at: '2024-03-21T10:00:00Z' },
+  { id: 9, email: 'admin5@atrani.com', role: 'admin', created_at: '2024-03-22T10:00:00Z' },
+  { id: 10, email: 'admin6@atrani.com', role: 'admin', created_at: '2024-03-23T10:00:00Z' },
+  { id: 11, email: 'admin7@atrani.com', role: 'admin', created_at: '2024-03-24T10:00:00Z' },
+  { id: 12, email: 'admin8@atrani.com', role: 'admin', created_at: '2024-03-25T10:00:00Z' },
+  { id: 13, email: 'admin9@atrani.com', role: 'admin', created_at: '2024-03-26T10:00:00Z' },
+  { id: 14, email: 'admin10@atrani.com', role: 'admin', created_at: '2024-03-27T10:00:00Z' },
+  { id: 15, email: 'demo4@atrani.com', role: 'demo', created_at: '2024-03-28T10:00:00Z' },
+  { id: 16, email: 'demo5@atrani.com', role: 'demo', created_at: '2024-03-29T10:00:00Z' },
+  { id: 17, email: 'demo6@atrani.com', role: 'demo', created_at: '2024-03-30T10:00:00Z' },
+  { id: 18, email: 'demo7@atrani.com', role: 'demo', created_at: '2024-03-31T10:00:00Z' },
+  { id: 19, email: 'demo8@atrani.com', role: 'demo', created_at: '2024-04-01T10:00:00Z' },
+  { id: 20, email: 'demo9@atrani.com', role: 'demo', created_at: '2024-04-02T10:00:00Z' },
+  { id: 21, email: 'admin11@atrani.com', role: 'admin', created_at: '2024-04-03T10:00:00Z' },
+  { id: 22, email: 'admin12@atrani.com', role: 'admin', created_at: '2024-04-04T10:00:00Z' },
+  { id: 23, email: 'admin13@atrani.com', role: 'admin', created_at: '2024-04-05T10:00:00Z' },
+  { id: 24, email: 'admin14@atrani.com', role: 'admin', created_at: '2024-04-06T10:00:00Z' },
+  { id: 25, email: 'admin15@atrani.com', role: 'admin', created_at: '2024-04-07T10:00:00Z' },
+  { id: 26, email: 'demo10@atrani.com', role: 'demo', created_at: '2024-04-08T10:00:00Z' },
+  { id: 27, email: 'demo11@atrani.com', role: 'demo', created_at: '2024-04-09T10:00:00Z' },
+  { id: 28, email: 'demo12@atrani.com', role: 'demo', created_at: '2024-04-10T10:00:00Z' },
+  { id: 29, email: 'demo13@atrani.com', role: 'demo', created_at: '2024-04-11T10:00:00Z' },
+  { id: 30, email: 'admin16@atrani.com', role: 'admin', created_at: '2024-04-12T10:00:00Z' },
+  { id: 31, email: 'admin17@atrani.com', role: 'admin', created_at: '2024-04-13T10:00:00Z' },
+  { id: 32, email: 'demo14@atrani.com', role: 'demo', created_at: '2024-04-14T10:00:00Z' },
 ];
 
 function AccountMenu({ account, currentAdmin, onDelete, onRoleChange, onInvite }: {
@@ -136,10 +164,22 @@ export default function Accounts() {
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('admin');
+  const [inviteRole, setInviteRole] = useState('admin'); // default value matches FilterDropdown options
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const filteredAdmins = admins.filter(a => {
+    const matchesSearch = a.email.toLowerCase().includes(search.toLowerCase());
+    const matchesRole = roleFilter === 'all' || a.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+  const totalPages = Math.ceil(filteredAdmins.length / pageSize);
+  const paginatedAdmins = filteredAdmins.slice((page - 1) * pageSize, page * pageSize);
 
   const headers = {
     'Content-Type': 'application/json',
@@ -216,14 +256,30 @@ export default function Accounts() {
           </p>
         </div>
       )}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-medium">Accounts</h1>
-        <Button variant="primary" icon={<FiMail size={13} />} onClick={isDemo ? undefined : () => setInviteOpen(true)} disabled={isDemo}>
-          Invite
-        </Button>
-      </div>
-
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-visible">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
+          <span className="text-sm font-medium">Accounts ({filteredAdmins.length})</span>
+          <FilterDropdown
+            value={roleFilter}
+            onChange={setRoleFilter}
+            allLabel="All Roles"
+            options={[
+              { value: 'superadmin', label: 'Super Admin' },
+              { value: 'admin', label: 'Admin' },
+              { value: 'demo', label: 'Demo' },
+            ]}
+          />
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by email..."
+          />
+          <div className="ml-auto">
+            <Button variant="primary" icon={<FiMail size={13} />} onClick={isDemo ? undefined : () => setInviteOpen(true)} disabled={isDemo}>
+              Invite
+            </Button>
+          </div>
+        </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 dark:border-zinc-800">
@@ -236,7 +292,7 @@ export default function Accounts() {
           <tbody>
             {loading ? (
               <tr><td colSpan={4} className="text-center py-8 text-zinc-400">Loading...</td></tr>
-            ) : admins.map(a => (
+            ) : paginatedAdmins.map(a => (
               <tr key={a.id} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
@@ -269,6 +325,14 @@ export default function Accounts() {
             ))}
           </tbody>
         </table>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalItems={filteredAdmins.length}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => { setPageSize(size); setPage(1); }}
+        />
       </div>
 
       {inviteOpen && (
@@ -287,7 +351,12 @@ export default function Accounts() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-zinc-500">Role</label>
-                <select className={inputClass} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+                <select
+                  className={inputClass}
+                  value={inviteRole}
+                  onChange={e => setInviteRole(e.target.value)}
+                >
+                  <option value="superadmin">Super Admin</option>
                   <option value="admin">Admin</option>
                   <option value="demo">Demo</option>
                 </select>

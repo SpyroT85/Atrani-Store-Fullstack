@@ -218,7 +218,7 @@ export default function CartDrawer({
               Checkout
             </Link>
 
-            {/* Καλάθι link */}
+            {/* link */}
             <p style={{ textAlign: 'center', margin: 0, fontSize: '12px', color: '#aaa' }}>
               Cart: {items.reduce((a, i) => a + i.qty, 0)} items
             </p>

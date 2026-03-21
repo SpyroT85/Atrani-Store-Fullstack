@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiUpload } from 'react-icons/fi';
-import type { Product } from '../types/product';
-import Button from './Button';
+import type { Product } from '../../types/product';
+import Button from '../ui/Button';
 
 
 const CATEGORIES = [

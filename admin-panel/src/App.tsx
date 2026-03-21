@@ -1,20 +1,20 @@
+import Analytics from './components/features/Analytics';
 import { ImSpinner8 } from 'react-icons/im';
 import { useState, useMemo, useCallback } from 'react';
-import ConfirmModal from './components/ConfirmModal';
-import Modal from './components/Modal';
-import ProductForm from './components/ProductForm';
-import Accounts from './components/Accounts';
+import ConfirmModal from './components/modals/ConfirmModal';
+import Modal from './components/modals/Modal';
+import ProductForm from './components/modals/ProductForm';
+import Accounts from './components/features/Accounts';
 import { useAuth } from './context/AuthContext';
 import { useProductsContext } from './context/ProductsContext';
-import Sidebar from './components/Sidebar';
-import Topbar from './components/Topbar';
-import StatsCards from './components/StatsCards';
-import ProductsTable from './components/ProductsTable';
+import Sidebar from './components/layout/Sidebar';
+import Topbar from './components/layout/Topbar';
+import StatsCards from './components/features/StatsCards';
+import ProductsTable from './components/features/ProductsTable';
 import type { Product } from './types/product';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/layout/ProtectedRoute';
 import AcceptInvite from './pages/AcceptInvite';
 import { Routes, Route } from 'react-router-dom';
-;
 
 const API_URL = 'http://localhost:5000';
 
@@ -39,9 +39,9 @@ export default function App() {
 
   const handleConfirmDelete = useCallback(async () => {
     if (!confirmModal) return;
-    await deleteProduct(confirmModal.id, confirmModal.name);
+    await deleteProduct(confirmModal.id, confirmModal.name, admin?.token);
     setConfirmModal(null);
-  }, [confirmModal, deleteProduct]);
+  }, [confirmModal, deleteProduct, admin]);
 
   const handleAdd = useCallback(async (data: Partial<Product>) => {
     setSaving(true);
@@ -155,17 +155,13 @@ export default function App() {
                         onPageChange={setPage}
                         onPageSizeChange={handlePageSizeChange}
                         isDemo={isDemo}
+                        token={admin?.token}
                       />
                     </>
                   )}
 
                   {currentPage === 'accounts' && <Accounts />}
-
-                  {currentPage === 'analytics' && (
-                    <div className="flex items-center justify-center h-64 text-zinc-400">
-                      Analytics page — coming soon
-                    </div>
-                  )}
+                  {currentPage === 'analytics' && <Analytics />}
 
                   {confirmModal && (
                     <ConfirmModal

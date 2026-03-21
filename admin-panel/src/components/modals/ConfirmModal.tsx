@@ -1,5 +1,5 @@
 import { FiTrash2, FiX } from 'react-icons/fi';
-import Button from './Button';
+import Button from '../ui/Button';
 
 interface ConfirmModalProps {
   message: string;

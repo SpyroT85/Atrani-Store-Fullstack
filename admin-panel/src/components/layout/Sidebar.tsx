@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { FiBox, FiUsers, FiBarChart2 } from 'react-icons/fi';
 
 interface SidebarProps {
@@ -7,7 +7,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ page, onNavigate }: SidebarProps) {
-  const { admin } = useAuth();
+  const { } = useAuth();
 
   const links = [
     { id: 'products', label: 'Products', icon: <FiBox size={15} /> },

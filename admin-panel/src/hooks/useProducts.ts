@@ -21,13 +21,12 @@ export function useProducts() {
       });
   }, []);
 
-  const deleteProduct = async (id: number, _name: string) => {
-    const admin = JSON.parse(localStorage.getItem('admin') || 'null');
+  const deleteProduct = async (id: number, _name: string, token?: string) => {
     try {
       const res = await fetch(`${API_URL}/api/products/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${admin?.token}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
       if (!res.ok) { alert('Failed to delete product'); return; }
@@ -36,6 +35,7 @@ export function useProducts() {
       alert('Failed to delete product');
     }
   };
+  
 
   return { products, loading, error, deleteProduct, setProducts };
 }

@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface Admin {
-  id: number;  // ← νέο
+  id: number;
   email: string;
   role: string;
   token: string;

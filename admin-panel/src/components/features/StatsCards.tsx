@@ -1,4 +1,4 @@
-import { useProductsContext } from '../context/ProductsContext';
+import { useProductsContext } from '../../context/ProductsContext';
 
 export default function StatsCards() {
   const { products } = useProductsContext();
