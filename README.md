@@ -241,4 +241,5 @@ npm run dev
 ## Author
 
 **Spyros Tserkezos** — Frontend Developer transitioning to Full Stack  
-[GitHub](https://github.com/SpyroT85)
+[GitHub](https://github.com/SpyroT85)   
+ 
