@@ -28,7 +28,7 @@ export default function Tooltip({ text, children, position = "top" }: TooltipPro
 
   return (
     <div
-      style={{ position: "relative", display: "inline-flex" }}
+      style={{ position: "relative", display: "inline-block" }}
       onMouseEnter={show}
       onMouseLeave={hide}
     >
@@ -38,7 +38,7 @@ export default function Tooltip({ text, children, position = "top" }: TooltipPro
         style={{
           position: "absolute",
           ...positionStyles[position],
-          backgroundColor: "#BFA57A",
+          backgroundColor: "#A68B5B",
           color: "#FAF7F3",
           fontSize: "0.75rem",
           fontFamily: "Manrope, sans-serif",
@@ -47,7 +47,6 @@ export default function Tooltip({ text, children, position = "top" }: TooltipPro
           whiteSpace: "nowrap",
           padding: "8px 14px",
           borderRadius: "10px",
-                    minWidth: "70px",
           pointerEvents: "none",
           opacity: visible ? 1 : 0,
           transition: "opacity 0.2s ease",
@@ -58,10 +57,10 @@ export default function Tooltip({ text, children, position = "top" }: TooltipPro
         {/* Arrow */}
         <div style={{
           position: "absolute",
-          ...(position === "top" ? { top: "100%", left: "71%", transform: "translateX(-50%)", borderTop:    "5px solid #BFA57A", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" } : {}),
-          ...(position === "bottom" ? { bottom: "100%", left: "60%", transform: "translateX(-40%)", borderBottom: "5px solid #BFA57A", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" } : {}),
-          ...(position === "left"   ? { left: "100%",  top:  "50%", transform: "translateY(-50%)", borderLeft:   "5px solid #BFA57A", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" } : {}),
-          ...(position === "right"  ? { right: "100%", top:  "50%", transform: "translateY(-50%)", borderRight:  "5px solid #BFA57A", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" } : {}),
+          ...(position === "top" ? { top: "100%", left: "71%", transform: "translateX(-50%)", borderTop:    "5px solid #2a2a2a", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" } : {}),
+          ...(position === "bottom" ? { bottom: "100%", left: "50%", transform: "translateX(-50%)", borderBottom: "5px solid #A68B5B", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" } : {}),
+          ...(position === "left"   ? { left: "100%",  top:  "50%", transform: "translateY(-50%)", borderLeft:   "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" } : {}),
+          ...(position === "right"  ? { right: "100%", top:  "50%", transform: "translateY(-50%)", borderRight:  "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" } : {}),
         }} />
       </div>
     </div>

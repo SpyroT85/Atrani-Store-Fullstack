@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { FiUser } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './ui/AuthModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +14,13 @@ import { IoIosMenu } from "react-icons/io";
 import { Link } from 'react-router-dom';
 import CartDrawer from './ui/CartDrawer';
 import { useCart } from '../hooks/useCart';
+import Tooltip from './Tooltip';
 
 const Navbar = () => {
+
+  const { user, logout } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
@@ -165,26 +173,75 @@ const Navbar = () => {
             <Link to="/inkwells" className="uppercase transition cursor-pointer" style={{ ...navLinkStyle, color: 'white' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')}
               onMouseLeave={e => (e.currentTarget.style.color = 'white')}>Inkwells</Link>
-
           </div>
 
-          {/* Shopping cart button */}
-          <div className="flex justify-end" style={{ marginRight: 'clamp(80px, 8vw, 200px)' }}>
-            <button
-              onClick={() => setCartOpen(true)}
-              className="transition flex items-center gap-1 cursor-pointer outline-none bg-transparent border-none relative"
-              style={{ color: 'white' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'white')}
+          {/* User icon + Shopping cart button */}
+          <div className="flex justify-end items-center gap-4" style={{ marginRight: 'clamp(80px, 8vw, 200px)' }}>
+            {/* Admin Panel button */}
+            <a
+              href="http://localhost:5173"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontFamily: 'Manrope, sans-serif', fontSize: '10px', letterSpacing: '0.12em', color: 'white', textDecoration: 'none', textTransform: 'uppercase', fontWeight: 700, padding: '7px 14px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#a37a41'; (e.currentTarget as HTMLAnchorElement).style.color = '#a37a41'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.3)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; }}
             >
-              <IoBagHandleSharp className="w-7 h-7" />
-              <span className="text-base" style={{ fontFamily: 'Manrope, sans-serif' }}>({totalItems})</span>
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ fontSize: '9px', fontFamily: 'Manrope, sans-serif', backgroundColor: '#a37a41' }}>
-                  {totalItems}
-                </span>
+              Admin Panel
+            </a>
+
+            {/* User icon */}
+            <div className="relative flex items-center">
+              <Tooltip text={user ? user.name : 'Sign In'} position="bottom">
+                <button
+                  onClick={() => user ? setUserMenuOpen(!userMenuOpen) : setAuthOpen(true)}
+                  className="transition flex items-center gap-1 cursor-pointer outline-none bg-transparent border-none"
+                  style={{ color: 'white' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'white')}
+                >
+                  <FiUser className="w-6 h-6" />
+                </button>
+              </Tooltip>
+              {user && userMenuOpen && (
+                <div
+                  className="absolute right-0 top-full mt-2 w-48 z-50"
+                  style={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderTop: '3px solid #a37a41', borderRadius: '12px', overflow: 'hidden' }}
+                >
+                  <div style={{ padding: '12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '10px', color: '#666', letterSpacing: '0.08em' }}>Signed in as</p>
+                    <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px', color: 'white', fontWeight: 600, marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || user.email}</p>
+                  </div>
+                  <button
+                    onClick={() => { logout(); setUserMenuOpen(false); }}
+                    className="w-full text-left"
+                    style={{ padding: '12px', fontFamily: 'Manrope, sans-serif', fontSize: '11px', letterSpacing: '0.08em', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(248,113,113,0.08)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  >
+                    Logout
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
+
+            {/* Cart button */}
+            <Tooltip text="Cart" position="bottom">
+              <button
+                onClick={() => setCartOpen(true)}
+                className="transition flex items-center gap-1 cursor-pointer outline-none bg-transparent border-none relative"
+                style={{ color: 'white' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'white')}
+              >
+                <IoBagHandleSharp className="w-7 h-7" />
+                <span className="text-base" style={{ fontFamily: 'Manrope, sans-serif' }}>({totalItems})</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ fontSize: '9px', fontFamily: 'Manrope, sans-serif', backgroundColor: '#a37a41' }}>
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </Tooltip>
           </div>
         </div>
 
@@ -226,39 +283,24 @@ const Navbar = () => {
                 )}
               </div>
 
-
               <div>
-                <Link
-                  to="/inkwells"
-                  className="w-full text-center transition cursor-pointer block"
-                  style={{ paddingTop: '16px', paddingBottom: '16px', fontFamily: 'Manrope, sans-serif', fontWeight: 600, letterSpacing: '0.15em', color: 'white', background: 'none', border: 'none', textDecoration: 'none' }}
+                <Link to="/inkwells" className="w-full text-center transition cursor-pointer block" style={{ paddingTop: '16px', paddingBottom: '16px', fontFamily: 'Manrope, sans-serif', fontWeight: 600, letterSpacing: '0.15em', color: 'white', background: 'none', border: 'none', textDecoration: 'none' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                   onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'white')}
-                >
-                  INKWELLS
-                </Link>
+                  onMouseLeave={e => (e.currentTarget.style.color = 'white')}>INKWELLS</Link>
               </div>
-
 
               <div>
-                <Link
-                  to="/compasses"
-                  className="w-full text-center transition cursor-pointer block"
-                  style={{ paddingTop: '16px', paddingBottom: '16px', fontFamily: 'Manrope, sans-serif', fontWeight: 600, letterSpacing: '0.15em', color: 'white', background: 'none', border: 'none', textDecoration: 'none' }}
+                <Link to="/compasses" className="w-full text-center transition cursor-pointer block" style={{ paddingTop: '16px', paddingBottom: '16px', fontFamily: 'Manrope, sans-serif', fontWeight: 600, letterSpacing: '0.15em', color: 'white', background: 'none', border: 'none', textDecoration: 'none' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                   onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'white')}
-                >
-                  COMPASSES
-                </Link>
+                  onMouseLeave={e => (e.currentTarget.style.color = 'white')}>COMPASSES</Link>
               </div>
-
-
             </div>
           </div>
         )}
       </nav>
+      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
       <CartDrawer
         isOpen={cartOpen}
         onClose={() => setCartOpen(false)}

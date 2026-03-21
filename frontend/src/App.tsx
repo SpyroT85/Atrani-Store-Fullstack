@@ -8,6 +8,8 @@ import ProductDetailPage from './pages/Products/ProductDetailPage';
 import { Analytics } from "@vercel/analytics/react";
 import Home from './pages/Home/Home';
 import NotFound from './pages/NotFound/NotFound';
+import { AuthProvider } from './context/AuthContext';
+import AuthCallback from './pages/AuthCallback/AuthCallback';
 
 const Atrani       = lazy(() => import('./pages/Watches/Atrani'));
 const Luxury       = lazy(() => import('./pages/Watches/Luxury'));
@@ -38,43 +40,48 @@ const PageLoader = () => (
 
 function App() {
   return (
-    <CartProvider>
-      <Analytics />
-      <div style={{ position: 'relative', minHeight: '100vh', background: '#F1F1F1' }}>
-        <BackToTop />
-        <ScrollToTop />
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Main site pages */}
-            <Route path="/"     element={<Home />} />
-            <Route path="/home" element={<Home />} />
+    <AuthProvider>
+      <CartProvider>
+        <Analytics />
+        <div style={{ position: 'relative', minHeight: '100vh', background: '#F1F1F1' }}>
+          <BackToTop />
+          <ScrollToTop />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Main site pages */}
+              <Route path="/"     element={<Home />} />
+              <Route path="/home" element={<Home />} />
 
-            {/* Product category pages */}
-            <Route path="/watches/atrani"        element={<Atrani />} />
-            <Route path="/watches/luxury"       element={<Luxury />} />
-            <Route path="/watches/smartwatches" element={<Smartwatches />} />
-            <Route path="/watches/pocket"       element={<Pocket />} />
-            <Route path="/pens/quill"           element={<QuillPens />} />
-            <Route path="/pens/fountain"        element={<FountainPens />} />
-            <Route path="/compasses"            element={<Compasses />} />
-            <Route path="/inkwells"             element={<Inkwells />} />
-            <Route path="/checkout"             element={<Checkout />} />
+              {/* Product category pages */}
+              <Route path="/watches/atrani"        element={<Atrani />} />
+              <Route path="/watches/luxury"       element={<Luxury />} />
+              <Route path="/watches/smartwatches" element={<Smartwatches />} />
+              <Route path="/watches/pocket"       element={<Pocket />} />
+              <Route path="/pens/quill"           element={<QuillPens />} />
+              <Route path="/pens/fountain"        element={<FountainPens />} />
+              <Route path="/compasses"            element={<Compasses />} />
+              <Route path="/inkwells"             element={<Inkwells />} />
+              <Route path="/checkout"             element={<Checkout />} />
 
-            {/* Product details (specific first, general last) */}
-            <Route path="/watches/luxury/:id"       element={<ProductDetailPage category="watches/luxury" />} />
-            <Route path="/watches/smartwatches/:id" element={<ProductDetailPage category="watches/smartwatches" />} />
-            <Route path="/watches/pocket/:id"       element={<ProductDetailPage category="watches/pocket" />} />
-            <Route path="/pens/quill/:id"           element={<ProductDetailPage category="quillPens" />} />
-            <Route path="/pens/fountain/:id"        element={<ProductDetailPage category="fountainPens" />} />
-            <Route path="/compasses/:id"            element={<ProductDetailPage category="compasses" />} />
-            <Route path="/inkwells/:id"             element={<ProductDetailPage category="inkwells" />} />
-            <Route path="/watches/:id"              element={<ProductDetailPage category="watches" />} />
+              {/* Product details (specific first, general last) */}
+              <Route path="/watches/luxury/:id"       element={<ProductDetailPage category="watches/luxury" />} />
+              <Route path="/watches/smartwatches/:id" element={<ProductDetailPage category="watches/smartwatches" />} />
+              <Route path="/watches/pocket/:id"       element={<ProductDetailPage category="watches/pocket" />} />
+              <Route path="/pens/quill/:id"           element={<ProductDetailPage category="quillPens" />} />
+              <Route path="/pens/fountain/:id"        element={<ProductDetailPage category="fountainPens" />} />
+              <Route path="/compasses/:id"            element={<ProductDetailPage category="compasses" />} />
+              <Route path="/inkwells/:id"             element={<ProductDetailPage category="inkwells" />} />
+              <Route path="/watches/:id"              element={<ProductDetailPage category="watches" />} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </div>
-    </CartProvider>
+              {/* Auth routes */}
+              <Route path="/auth/callback" element={<AuthCallback />} />
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </div>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
