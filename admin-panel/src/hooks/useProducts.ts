@@ -21,10 +21,16 @@ export function useProducts() {
       });
   }, []);
 
-  const deleteProduct = async (id: number, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
+  const deleteProduct = async (id: number, _name: string) => {
+    const admin = JSON.parse(localStorage.getItem('admin') || 'null');
     try {
-      await fetch(`${API_URL}/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/api/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${admin?.token}`,
+        },
+      });
+      if (!res.ok) { alert('Failed to delete product'); return; }
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch {
       alert('Failed to delete product');

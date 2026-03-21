@@ -1,18 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [invitedMsg, setInvitedMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('invited') === 'true') {
+      setInvitedMsg('Account created! Please log in.');
+    }
+  }, []);
 
   const handleLogin = async (emailVal: string, passwordVal: string) => {
     setError('');
     setLoading(true);
     const success = await login(emailVal, passwordVal);
-    if (!success) setError('Invalid credentials');
+    if (!success) {
+      setError('Invalid credentials');
+    } else {
+      navigate('/');
+    }
     setLoading(false);
   };
 
@@ -20,9 +34,13 @@ export default function Login() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
       <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 shadow-sm">
         
+
         <div className="mb-8">
           <h1 className="text-xl font-medium text-zinc-900 dark:text-zinc-100">Atrani Admin Panel</h1>
           <p className="text-sm text-zinc-400 mt-1">Sign in to your account</p>
+          {invitedMsg && (
+            <div className="text-green-600 text-sm mt-2">{invitedMsg}</div>
+          )}
         </div>
 
         <form onSubmit={(e) => { e.preventDefault(); handleLogin(email, password); }} className="flex flex-col gap-4">

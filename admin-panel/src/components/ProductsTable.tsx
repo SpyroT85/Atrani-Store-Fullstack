@@ -5,6 +5,8 @@ import ActionMenu from './ActionMenu';
 import CategoryDropdown from './CategoryDropdown';
 import PerPageDropdown from './PerPageDropdown';
 
+import Tooltip from './Tooltip';
+
 interface ProductsTableProps {
   products: Product[];
   onDelete: (id: number, name: string) => void;
@@ -20,6 +22,7 @@ interface ProductsTableProps {
   totalProducts: number;
   onPageChange: (p: number) => void;
   onPageSizeChange: (s: number) => void;
+  isDemo?: boolean;
 }
 
 export default function ProductsTable({
@@ -27,7 +30,8 @@ export default function ProductsTable({
   categoryFilter, onCategoryChange,
   search, onSearch,
   page, totalPages, pageSize, totalProducts,
-  onPageChange, onPageSizeChange
+  onPageChange, onPageSizeChange,
+  isDemo = false
 }: ProductsTableProps) {
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
@@ -88,6 +92,7 @@ export default function ProductsTable({
                   <ActionMenu
                     onEdit={() => onEdit(product)}
                     onDelete={() => onDelete(product.id, product.name)}
+                    disabled={isDemo}
                   />
                 </td>
               </tr>

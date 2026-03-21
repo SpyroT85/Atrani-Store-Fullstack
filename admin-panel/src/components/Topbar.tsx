@@ -45,6 +45,15 @@ export default function Topbar() {
               <div className="px-3 py-2.5 border-b border-zinc-100 dark:border-zinc-800">
                 <p className="text-xs text-zinc-400">Signed in as</p>
                 <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200 truncate">{admin?.email}</p>
+                <span className={`inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                  admin?.role === 'superadmin'
+                    ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    : admin?.role === 'admin'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                    : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+                }`}>
+                  {admin?.role === 'superadmin' ? '✦ Super Admin' : admin?.role === 'admin' ? '✦ Admin' : '◈ Demo'}
+                </span>
               </div>
               <button
                 onClick={logout}

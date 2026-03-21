@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface Admin {
+  id: number;  // ← νέο
   email: string;
   role: string;
   token: string;
@@ -20,6 +21,7 @@ const API_URL = 'http://localhost:5000';
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(() => {
     const saved = localStorage.getItem('admin');
+    console.log('AuthContext init:', saved);
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -37,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!res.ok) return false;
 
-      const adminData = { email: data.email, role: data.role, token: data.token };
+      const adminData = { id: data.id, email: data.email, role: data.role, token: data.token };
       setAdmin(adminData);
       localStorage.setItem('admin', JSON.stringify(adminData));
       return true;

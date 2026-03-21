@@ -1,20 +1,78 @@
-import { useState } from 'react';
+import { useState, useRef } from "react";
 
 interface TooltipProps {
   text: string;
   children: React.ReactNode;
+  position?: "top" | "bottom" | "left" | "right";
 }
 
-export default function Tooltip({ text, children }: TooltipProps) {
-  const [show, setShow] = useState(false);
+export default function Tooltip({ text, children, position = "bottom" }: TooltipProps) {
+  const [visible, setVisible] = useState(false);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+
+    const show = () => {
+      timeout.current = setTimeout(() => setVisible(true), 100);
+    };
+  const hide = () => {
+    if (timeout.current) clearTimeout(timeout.current);
+    setVisible(false);
+  };
+
+  const positionStyles: Record<string, React.CSSProperties> = {
+    top:    { bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-70%)" },
+    bottom: { top:    "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" },
+    left:   { right:  "calc(100% + 8px)", top:  "50%", transform: "translateY(-50%)" },
+    right:  { left:   "calc(100% + 8px)", top:  "50%", transform: "translateY(-50%)" },
+  };
 
   return (
-    <div className="relative inline-flex" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+    <div
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={show}
+      onMouseLeave={hide}
+    >
       {children}
-      {show && (
-        <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-md whitespace-nowrap z-10">
+
+      {visible && (
+        <div
+          style={{
+            position: "absolute",
+            ...positionStyles[position],
+            backgroundColor: "#A68B5B",
+            color: "#FAF7F3",
+            fontSize: "0.75rem",
+            fontFamily: "Manrope, sans-serif",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            whiteSpace: 'normal',
+            maxWidth: '140px',
+            textAlign: 'center',
+            padding: "8px 14px",
+            borderRadius: "10px",
+            pointerEvents: "none",
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.2s ease",
+            zIndex: 50,
+          }}
+        >
           {text}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-900 dark:border-t-zinc-100" />
+          {/* Arrow */}
+          <div style={{
+            position: "absolute",
+            ...(position === "top"
+              ? { top: "100%", left: "71%", transform: "translateX(-50%)", borderTop:    "5px solid #A68B5B", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" }
+              : {}),
+            ...(position === "bottom"
+              ? { bottom: "100%", left: "50%", transform: "translateX(-50%)", borderBottom: "5px solid #A68B5B", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" }
+              : {}),
+            ...(position === "left"
+              ? { left: "100%",  top:  "50%", transform: "translateY(-50%)", borderLeft:   "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" }
+              : {}),
+            ...(position === "right"
+              ? { right: "100%", top:  "50%", transform: "translateY(-50%)", borderRight:  "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" }
+              : {}),
+          }} />
         </div>
       )}
     </div>

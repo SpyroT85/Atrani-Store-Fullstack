@@ -41,9 +41,11 @@ interface ProductFormProps {
   onSubmit: (data: Partial<Product>) => void;
   onCancel: () => void;
   loading?: boolean;
+  token?: string;
+  isDemo?: boolean;
 }
 
-export default function ProductForm({ initial = {}, onSubmit, onCancel, loading }: ProductFormProps) {
+export default function ProductForm({ initial = {}, onSubmit, onCancel, loading, token, isDemo = false }: ProductFormProps) {
   const [form, setForm] = useState({
     name: initial.name ?? '',
     category: initial.category ?? 'watches',
@@ -61,7 +63,7 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  const inputClass = "w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#C8874A]/40 transition";
+  const inputClass = `w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#C8874A]/40 transition`;
 
   const [preview, setPreview] = useState<string>(initial.image_url ?? '');
 
@@ -73,8 +75,12 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
     try {
       const res = await fetch('http://localhost:5000/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       });
+      if (res.status === 401) { alert('Unauthorized — please log in again'); return; }
       const data = await res.json();
       setPreview(data.url);
       set('image_url', data.url);
@@ -85,28 +91,36 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
 
   return (
     <div className="flex flex-col gap-4">
+      {isDemo && (
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+          <span className="text-amber-500">⚠️</span>
+          <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+            Demo mode — changes are disabled. You can explore the UI but cannot save.
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Name</label>
-          <input className={inputClass} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Product name" />
+          <input className={inputClass} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Product name" disabled={isDemo} />
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Category</label>
-          <select className={inputClass} value={form.category} onChange={e => set('category', e.target.value)}>
+          <select className={inputClass} value={form.category} onChange={e => set('category', e.target.value)} disabled={isDemo}>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Price (€)</label>
-          <input className={inputClass} value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.00" type="number" />
+          <input className={inputClass} value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.00" type="number" disabled={isDemo} />
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Code</label>
-          <input className={inputClass} value={form.code} onChange={e => set('code', e.target.value)} placeholder="AW1001" />
+          <input className={inputClass} value={form.code} onChange={e => set('code', e.target.value)} placeholder="AW1001" disabled={isDemo} />
         </div>
         <div className="flex flex-col gap-1.5 col-span-2">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Slug</label>
-          <input className={inputClass} value={form.slug} onChange={e => set('slug', e.target.value)} placeholder="watches-classic" />
+          <input className={inputClass} value={form.slug} onChange={e => set('slug', e.target.value)} placeholder="watches-classic" disabled={isDemo} />
         </div>
         <div className="flex flex-col gap-1.5 col-span-2">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Image</label>
@@ -117,13 +131,13 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
             <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition">
               <FiUpload size={14} />
               {preview ? 'Change image' : 'Upload image'}
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isDemo} />
             </label>
           </div>
         </div>
         <div className="flex flex-col gap-1.5 col-span-2">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Description</label>
-          <textarea className={inputClass} rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Product description..." />
+          <textarea className={inputClass} rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Product description..." disabled={isDemo} />
         </div>
 
         {(CATEGORY_FIELDS[form.category] ?? []).map(field => (
@@ -136,6 +150,7 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
               value={(form as any)[field] ?? ''}
               onChange={e => set(field, e.target.value)}
               placeholder={FIELD_PLACEHOLDERS[field]}
+              disabled={isDemo}
             />
           </div>
         ))}
@@ -143,9 +158,11 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading 
 
       <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
         <Button variant="edit" onClick={onCancel}>Cancel</Button>
-        <Button variant="primary" onClick={() => onSubmit(form)} icon={loading ? undefined : undefined}>
-          {loading ? 'Saving...' : 'Save'}
-        </Button>
+        {!isDemo && (
+          <Button variant="primary" onClick={() => onSubmit(form)}>
+            {loading ? 'Saving...' : 'Save'}
+          </Button>
+        )}
       </div>
     </div>
   );
