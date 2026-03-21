@@ -2,12 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon-light.ico" id="favicon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <title>admin-panel</title>
+    <title>Atrani Admin Panel</title>
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        const favicon = document.getElementById('favicon');
+        const dark = window.matchMedia('(prefers-color-scheme: dark)');
+        favicon.href = dark.matches ? '/favicon-light.ico' : '/favicon-dark.png';
+        dark.addEventListener('change', e => {
+          favicon.href = e.matches ? '/favicon-light.ico' : '/favicon-dark.png';
+        });
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
