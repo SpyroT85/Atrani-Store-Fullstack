@@ -67,7 +67,7 @@ export async function fetchInkwells(): Promise<Inkwell[]> {
   return (await res.json()).map(mapProduct);
 }
 
-export async function fetchProductById(category: string, id: string) {
+export async function fetchProductById(_category: string, id: string) {
   const res = await fetch(`${API_URL}/api/products/${id}`);
   if (!res.ok) throw new Error('Failed to fetch product');
   const p = await res.json();
