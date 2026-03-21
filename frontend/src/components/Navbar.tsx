@@ -179,7 +179,7 @@ const Navbar = () => {
           <div className="flex justify-end items-center gap-4" style={{ marginRight: 'clamp(80px, 8vw, 200px)' }}>
             {/* Admin Panel button */}
             <a
-              href="http://localhost:5173"
+              href="https://admin.spyros-tserkezos.dev"
               target="_blank"
               rel="noopener noreferrer"
               style={{ fontFamily: 'Manrope, sans-serif', fontSize: '10px', letterSpacing: '0.12em', color: 'white', textDecoration: 'none', textTransform: 'uppercase', fontWeight: 700, padding: '7px 14px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px' }}
