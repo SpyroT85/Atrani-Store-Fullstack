@@ -4,10 +4,9 @@ import { createPortal } from "react-dom";
 interface TooltipProps {
   text: string;
   children: React.ReactNode;
-  position?: "top" | "bottom" | "left" | "right";
 }
 
-export default function Tooltip({ text, children, position = "right" }: TooltipProps) {
+export default function Tooltip({ text, children }: TooltipProps) {
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
