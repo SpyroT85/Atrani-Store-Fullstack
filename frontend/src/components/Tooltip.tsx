@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface TooltipProps {
   text: string;
@@ -7,62 +8,101 @@ interface TooltipProps {
 }
 
 export default function Tooltip({ text, children, position = "top" }: TooltipProps) {
-  const [visible, setVisible] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number; transform: string } | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const show = () => {
-    timeout.current = setTimeout(() => setVisible(true), 100);
+    timeout.current = setTimeout(() => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      let top = 0, left = 0, transform = '';
+
+      if (position === 'bottom') {
+        top = rect.bottom + 8;
+        left = rect.left + rect.width / 2;
+        transform = 'translateX(-50%)';
+      } else if (position === 'top') {
+        top = rect.top - 8;
+        left = rect.left + rect.width / 2;
+        transform = 'translateX(-50%) translateY(-100%)';
+      } else if (position === 'left') {
+        top = rect.top + rect.height / 2;
+        left = rect.left - 8;
+        transform = 'translateX(-100%) translateY(-50%)';
+      } else if (position === 'right') {
+        top = rect.top + rect.height / 2;
+        left = rect.right + 8;
+        transform = 'translateY(-50%)';
+      }
+
+      setCoords({ top, left, transform });
+    }, 500);
   };
 
   const hide = () => {
     if (timeout.current) clearTimeout(timeout.current);
-    setVisible(false);
+    setCoords(null);
   };
 
-  const positionStyles: Record<string, React.CSSProperties> = {
-    top:    { bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-70%)" },
-    bottom: { top:    "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" },
-    left:   { right:  "calc(100% + 8px)", top:  "50%", transform: "translateY(-50%)" },
-    right:  { left:   "calc(100% + 8px)", top:  "50%", transform: "translateY(-50%)" },
+  const arrowStyle = (): React.CSSProperties => {
+    if (position === 'bottom') return {
+      position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
+      borderBottom: '5px solid rgba(163,122,65,0.4)', borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+    };
+    if (position === 'top') return {
+      position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
+      borderTop: '5px solid rgba(163,122,65,0.4)', borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+    };
+    if (position === 'right') return {
+      position: 'absolute', right: '100%', top: '50%', transform: 'translateY(-50%)',
+      borderRight: '5px solid rgba(163,122,65,0.4)', borderTop: '5px solid transparent', borderBottom: '5px solid transparent',
+    };
+    if (position === 'left') return {
+      position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)',
+      borderLeft: '5px solid rgba(163,122,65,0.4)', borderTop: '5px solid transparent', borderBottom: '5px solid transparent',
+    };
+    return {};
   };
 
   return (
-    <div
-      style={{ position: "relative", display: "inline-block" }}
-      onMouseEnter={show}
-      onMouseLeave={hide}
-    >
-      {children}
-
+    <>
       <div
-        style={{
-          position: "absolute",
-          ...positionStyles[position],
-          backgroundColor: "#A68B5B",
-          color: "#FAF7F3",
-          fontSize: "0.75rem",
-          fontFamily: "Manrope, sans-serif",
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          whiteSpace: "nowrap",
-          padding: "8px 14px",
-          borderRadius: "10px",
-          pointerEvents: "none",
-          opacity: visible ? 1 : 0,
-          transition: "opacity 0.2s ease",
-          zIndex: 50,
-        }}
+        ref={containerRef}
+        style={{ display: 'inline-block' }}
+        onMouseEnter={show}
+        onMouseLeave={hide}
       >
-        {text}
-        {/* Arrow */}
-        <div style={{
-          position: "absolute",
-          ...(position === "top" ? { top: "100%", left: "71%", transform: "translateX(-50%)", borderTop:    "5px solid #2a2a2a", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" } : {}),
-          ...(position === "bottom" ? { bottom: "100%", left: "50%", transform: "translateX(-50%)", borderBottom: "5px solid #A68B5B", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" } : {}),
-          ...(position === "left"   ? { left: "100%",  top:  "50%", transform: "translateY(-50%)", borderLeft:   "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" } : {}),
-          ...(position === "right"  ? { right: "100%", top:  "50%", transform: "translateY(-50%)", borderRight:  "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" } : {}),
-        }} />
+        {children}
       </div>
-    </div>
+
+      {coords && createPortal(
+        <div style={{
+          position: 'fixed',
+          top: coords.top,
+          left: coords.left,
+          transform: coords.transform,
+          background: 'rgba(163,122,65,0.12)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(163,122,65,0.35)',
+          color: '#a37a41',
+          fontSize: '0.7rem',
+          fontFamily: 'Manrope, sans-serif',
+          fontWeight: 600,
+          letterSpacing: '0.08em',
+          whiteSpace: 'nowrap',
+          padding: '6px 12px',
+          borderRadius: '8px',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          boxShadow: '0 4px 16px rgba(163,122,65,0.15)',
+        }}>
+          {text}
+          <div style={arrowStyle()} />
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
