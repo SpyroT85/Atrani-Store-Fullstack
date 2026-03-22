@@ -9,7 +9,7 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-type Mode = 'login' | 'signup' | 'verify';
+type Mode = 'login' | 'signup' | 'verify' | 'forgot' | 'forgot-sent';
 
 function validatePassword(password: string): string {
   if (password.length < 6) return 'Password must be at least 6 characters';
@@ -31,11 +31,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
 
   const passwordValid = mode !== 'signup' || (
-    password.length >= 6 &&
-    password.length <= 16 &&
-    /[A-Z]/.test(password) &&
-    /[0-9]/.test(password) &&
-    /[^a-zA-Z0-9]/.test(password)
+    password.length >= 6 && password.length <= 16 &&
+    /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9]/.test(password)
   );
 
   useEffect(() => {
@@ -58,7 +55,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
       const success = await login(email, password);
       if (!success) { setError('Invalid email or password'); setLoading(false); return; }
       onClose();
-    } else {
+    } else if (mode === 'signup') {
       if (!name.trim()) { setError('Name is required'); setLoading(false); return; }
       const pwError = validatePassword(password);
       if (pwError) { setError(pwError); setLoading(false); return; }
@@ -69,61 +66,118 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await fetch(`${API_URL}/api/users/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      setMode('forgot-sent');
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGoogle = () => {
     window.location.href = `${API_URL}/api/auth/google`;
   };
 
+  const resetToLogin = () => {
+    setMode('login');
+    setError('');
+    setPassword('');
+    setShowPassword(false);
+  };
+
   const inputStyle: React.CSSProperties = {
-    fontFamily: 'Manrope, sans-serif',
-    fontSize: '13px',
-    padding: '12px 16px',
-    borderRadius: '4px',
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.05)',
-    color: 'white',
-    outline: 'none',
-    width: '100%',
-    boxSizing: 'border-box',
+    fontFamily: 'Manrope, sans-serif', fontSize: '13px', padding: '12px 16px',
+    borderRadius: '4px', border: '1px solid rgba(255,255,255,0.12)',
+    background: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none',
+    width: '100%', boxSizing: 'border-box',
   };
 
   const labelStyle: React.CSSProperties = {
-    fontFamily: 'Manrope, sans-serif',
-    fontSize: '10px',
-    letterSpacing: '0.12em',
-    color: '#999',
-    textTransform: 'uppercase',
+    fontFamily: 'Manrope, sans-serif', fontSize: '10px',
+    letterSpacing: '0.12em', color: '#999', textTransform: 'uppercase',
   };
 
   return (
     <>
-      <div
-        onClick={onClose}
-        style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-      />
-
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
       <div
         style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 101, width: '100%', maxWidth: '420px', backgroundColor: '#1a1a1a', borderTop: '3px solid #a37a41', borderRadius: '4px', boxShadow: '-4px 0 24px rgba(0,0,0,0.4)', padding: '32px', boxSizing: 'border-box' }}
         onClick={e => e.stopPropagation()}
       >
-        {mode === 'verify' ? (
+        {/* Verify email */}
+        {mode === 'verify' && (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <p style={{ fontSize: '40px', marginBottom: '16px' }}>✉️</p>
-            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'white', marginBottom: '12px' }}>
-              Check your email
-            </h2>
+            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'white', marginBottom: '12px' }}>Check your email</h2>
             <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px', color: '#999', lineHeight: 1.7, margin: 0 }}>
               We sent a verification link to<br />
               <span style={{ color: '#a37a41' }}>{email}</span>.<br />
               Click it to activate your account.
             </p>
-            <button
-              onClick={onClose}
-              style={{ marginTop: '28px', padding: '12px 32px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-            >
+            <button onClick={onClose} style={{ marginTop: '28px', padding: '12px 32px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
               Got it
             </button>
           </div>
-        ) : (
+        )}
+
+        {/* Forgot password sent */}
+        {mode === 'forgot-sent' && (
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <p style={{ fontSize: '40px', marginBottom: '16px' }}>📬</p>
+            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'white', marginBottom: '12px' }}>Check your email</h2>
+            <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px', color: '#999', lineHeight: 1.7, margin: 0 }}>
+              If an account exists for <span style={{ color: '#a37a41' }}>{email}</span>, we've sent a password reset link.
+            </p>
+            <button onClick={resetToLogin} style={{ marginTop: '28px', padding: '12px 32px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Back to Sign In
+            </button>
+          </div>
+        )}
+
+        {/* Forgot password form */}
+        {mode === 'forgot' && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
+              <div>
+                <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'white', margin: 0 }}>Reset Password</h2>
+                <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px', color: '#a37a41', marginTop: '6px', letterSpacing: '0.06em' }}>We'll send you a reset link</p>
+              </div>
+              <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: '4px', display: 'flex', alignItems: 'center' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'white')} onMouseLeave={e => (e.currentTarget.style.color = '#999')}>
+                <IoClose size={22} />
+              </button>
+            </div>
+            <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={labelStyle}>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+              </div>
+              {error && <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '11px', color: '#f87171', margin: 0 }}>{error}</p>}
+              <button type="submit" disabled={loading} style={{ marginTop: '4px', padding: '14px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+                {loading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+            </form>
+            <p style={{ textAlign: 'center', fontFamily: 'Manrope, sans-serif', fontSize: '11px', color: '#666', marginTop: '20px', marginBottom: 0 }}>
+              <button onClick={resetToLogin} style={{ color: '#a37a41', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '11px', padding: 0 }}
+                onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
+                ← Back to Sign In
+              </button>
+            </p>
+          </>
+        )}
+
+        {/* Login / Signup */}
+        {(mode === 'login' || mode === 'signup') && (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
               <div>
@@ -134,12 +188,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
                   {mode === 'login' ? 'Welcome back to Atrani' : 'Join Atrani'}
                 </p>
               </div>
-              <button
-                onClick={onClose}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: '4px', display: 'flex', alignItems: 'center' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'white')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#999')}
-              >
+              <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', padding: '4px', display: 'flex', alignItems: 'center' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'white')} onMouseLeave={e => (e.currentTarget.style.color = '#999')}>
                 <IoClose size={22} />
               </button>
             </div>
@@ -151,30 +201,26 @@ export default function AuthModal({ onClose }: AuthModalProps) {
                   <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inputStyle} />
                 </div>
               )}
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={labelStyle}>Email</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
               </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={labelStyle}>Password</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={labelStyle}>Password</label>
+                  {mode === 'login' && (
+                    <button type="button" onClick={() => { setMode('forgot'); setError(''); }}
+                      style={{ fontFamily: 'Manrope, sans-serif', fontSize: '10px', color: '#666', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.06em', padding: 0 }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#a37a41')} onMouseLeave={e => (e.currentTarget.style.color = '#666')}>
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
                 <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    style={{ ...inputStyle, paddingRight: '44px' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                  <input type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={{ ...inputStyle, paddingRight: '44px' }} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
                     style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#666', display: 'flex', alignItems: 'center', padding: 0 }}
-                    onMouseEnter={e => (e.currentTarget.style.color = 'white')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#666')}
-                  >
+                    onMouseEnter={e => (e.currentTarget.style.color = 'white')} onMouseLeave={e => (e.currentTarget.style.color = '#666')}>
                     {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                   </button>
                 </div>
@@ -202,13 +248,10 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
               {error && <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '11px', color: '#f87171', margin: 0 }}>{error}</p>}
 
-              <button
-                type="submit"
-                disabled={loading || !passwordValid}
+              <button type="submit" disabled={loading || !passwordValid}
                 style={{ marginTop: '4px', padding: '14px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: loading || !passwordValid ? 'not-allowed' : 'pointer', opacity: loading || !passwordValid ? 0.5 : 1 }}
                 onMouseEnter={e => { if (!loading && passwordValid) e.currentTarget.style.background = '#8a5e3a'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#a37a41'; }}
-              >
+                onMouseLeave={e => { e.currentTarget.style.background = '#a37a41'; }}>
                 {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
               </button>
             </form>
@@ -219,12 +262,9 @@ export default function AuthModal({ onClose }: AuthModalProps) {
               <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
             </div>
 
-            <button
-              onClick={handleGoogle}
+            <button onClick={handleGoogle}
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '13px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', background: 'transparent', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer' }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a37a41')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)')}
-            >
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#a37a41')} onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)')}>
               <svg width="15" height="15" viewBox="0 0 48 48">
                 <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/>
                 <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/>
@@ -236,12 +276,9 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
             <p style={{ textAlign: 'center', fontFamily: 'Manrope, sans-serif', fontSize: '11px', color: '#666', marginTop: '20px', marginBottom: 0 }}>
               {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-              <button
-                onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setPassword(''); setShowPassword(false); }}
+              <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setPassword(''); setShowPassword(false); }}
                 style={{ color: '#a37a41', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '11px', padding: 0 }}
-                onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
-              >
+                onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
                 {mode === 'login' ? 'Sign up' : 'Sign in'}
               </button>
             </p>

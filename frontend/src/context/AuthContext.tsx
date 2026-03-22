@@ -1,6 +1,8 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
+const API_URL = 'https://api.spyros-tserkezos.dev';
+
 interface User {
   id: number;
   name: string;
@@ -14,12 +16,11 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   loginWithToken: (token: string, userData: Omit<User, 'token'>) => void;
+  updateUser: (data: Partial<Omit<User, 'token'>>) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-const API_URL = 'https://api.spyros-tserkezos.dev';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
@@ -64,13 +65,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(full));
   };
 
+  const updateUser = (data: Partial<Omit<User, 'token'>>) => {
+    if (!user) return;
+    const updated = { ...user, ...data };
+    setUser(updated);
+    localStorage.setItem('user', JSON.stringify(updated));
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, loginWithToken, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, loginWithToken, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
