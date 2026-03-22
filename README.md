@@ -5,7 +5,6 @@ A production-ready full-stack e-commerce platform for a luxury watches and fine 
 ---
 
 ## What's inside
-
 ```
 atrani-watches/
 ├── frontend/       React storefront (Vite + TypeScript + Tailwind)
@@ -244,5 +243,5 @@ npm run dev
 
 ## Author
 
-**Spyros Tserkezos** — Frontend Developer transitioning to Full Stack  
+**Spyros Tserkezos** - Full Stack Developer 
 [GitHub](https://github.com/SpyroT85) 
