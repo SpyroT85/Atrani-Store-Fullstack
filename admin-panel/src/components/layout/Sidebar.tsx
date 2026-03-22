@@ -101,7 +101,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           );
 
           return collapsed ? (
-            <Tooltip key={link.id} text={link.label} position="right">
+            <Tooltip key={link.id} text={link.label}>
               {linkEl}
             </Tooltip>
           ) : linkEl;
