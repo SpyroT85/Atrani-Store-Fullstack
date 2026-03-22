@@ -30,9 +30,12 @@ atrani-watches/
 
 The public-facing store where customers browse products, create accounts, and manage their profiles.
 
-**Tech:** React 18, TypeScript, Vite, Tailwind CSS, React Router
+**Tech:**
+
+React 18, TypeScript, Vite, Tailwind CSS, React Router
 
 **Features:**
+
 - Product catalog with category filtering (watches, fountain pens, quill pens, compasses, inkwells)
 - Dynamic product detail pages with slug-based routing
 - Related products fetched from the database
@@ -92,6 +95,7 @@ backend/
 | GET | `/api/stats` | Dashboard statistics |
 
 **Security:**
+
 - Passwords hashed with bcrypt (salt rounds: 10)
 - JWT tokens for both admin and customer sessions (separate expiry)
 - Role-based access control: `superadmin`, `admin`, `demo`
@@ -241,5 +245,4 @@ npm run dev
 ## Author
 
 **Spyros Tserkezos** — Frontend Developer transitioning to Full Stack  
-[GitHub](https://github.com/SpyroT85)   
- 
+[GitHub](https://github.com/SpyroT85) 
