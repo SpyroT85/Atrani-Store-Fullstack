@@ -43,6 +43,7 @@ export default function Topbar() {
   const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetched, setFetched] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -56,6 +57,28 @@ export default function Topbar() {
   const currentPage = location.pathname.replace('/', '') || 'products';
   const pageTitle = pageTitles[currentPage] || 'Dashboard';
 
+  // Fetch on mount to show badge count immediately
+  useEffect(() => {
+    if (!admin?.token || fetched) return;
+    setFetched(true);
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_URL}/api/users/recent`, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      }),
+      fetch(`${API_URL}/api/products/low-stock?threshold=20`, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      }),
+    ])
+      .then(([usersRes, stockRes]) => Promise.all([usersRes.json(), stockRes.json()]))
+      .then(([usersData, stockData]) => {
+        setRecentUsers(usersData);
+        setLowStockProducts(stockData);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [admin?.token]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -65,32 +88,22 @@ export default function Topbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleBellOpen = async () => {
-    const opening = !bellOpen;
-    setBellOpen(opening);
-    if (opening && recentUsers.length === 0 && lowStockProducts.length === 0) {
-      setLoading(true);
-      try {
-        const [usersRes, stockRes] = await Promise.all([
-          fetch(`${API_URL}/api/users/recent`, {
-            headers: { Authorization: `Bearer ${admin?.token}` },
-          }),
-          fetch(`${API_URL}/api/products/low-stock?threshold=10`, {
-            headers: { Authorization: `Bearer ${admin?.token}` },
-          }),
-        ]);
-        const [usersData, stockData] = await Promise.all([usersRes.json(), stockRes.json()]);
-        setRecentUsers(usersData);
-        setLowStockProducts(stockData);
-      } catch {
-        // silent fail
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
+  const totalNotifications = lowStockProducts.length + recentUsers.length;
 
-  const totalNotifications = lowStockProducts.length;
+  const glassyBadge = (count: number) => (
+    <span
+      className="min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
+      style={{
+        background: 'rgba(200,135,74,0.15)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        border: '1px solid rgba(200,135,74,0.4)',
+        color: '#C8874A',
+      }}
+    >
+      {count}
+    </span>
+  );
 
   return (
     <div className="flex justify-between items-center mb-6">
@@ -104,12 +117,21 @@ export default function Topbar() {
         {/* Notifications */}
         <div className="relative" ref={bellRef}>
           <button
-            onClick={handleBellOpen}
+            onClick={() => setBellOpen(prev => !prev)}
             className="relative flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-[#C8874A]/50 hover:text-[#C8874A] transition"
           >
             <FiBell size={15} />
             {totalNotifications > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
+              <span
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
+                style={{
+                  background: 'rgba(200,135,74,0.15)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(200,135,74,0.4)',
+                  color: '#C8874A',
+                }}
+              >
                 {totalNotifications}
               </span>
             )}
@@ -121,13 +143,14 @@ export default function Topbar() {
               <div className="flex border-b border-zinc-100 dark:border-zinc-800">
                 <button
                   onClick={() => setActiveTab('signups')}
-                  className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
                     activeTab === 'signups'
                       ? 'text-[#C8874A] border-b-2 border-[#C8874A]'
                       : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
                   }`}
                 >
                   Recent Signups
+                  {recentUsers.length > 0 && glassyBadge(recentUsers.length)}
                 </button>
                 <button
                   onClick={() => setActiveTab('stock')}
@@ -138,11 +161,7 @@ export default function Topbar() {
                   }`}
                 >
                   Low Stock
-                  {lowStockProducts.length > 0 && (
-                    <span className="w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
-                      {lowStockProducts.length}
-                    </span>
-                  )}
+                  {lowStockProducts.length > 0 && glassyBadge(lowStockProducts.length)}
                 </button>
               </div>
 
