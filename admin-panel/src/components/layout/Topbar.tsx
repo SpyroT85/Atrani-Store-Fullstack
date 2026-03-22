@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 
 const API_URL = 'https://api.spyros-tserkezos.dev';
+const LAST_READ_KEY = 'notifications_last_read_at';
 
 interface RecentUser {
   id: number;
@@ -44,6 +45,9 @@ export default function Topbar() {
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
+  const [lastReadAt, setLastReadAt] = useState<number>(
+    () => parseInt(localStorage.getItem(LAST_READ_KEY) || '0')
+  );
   const ref = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -57,7 +61,7 @@ export default function Topbar() {
   const currentPage = location.pathname.replace('/', '') || 'products';
   const pageTitle = pageTitles[currentPage] || 'Dashboard';
 
-  // Fetch on mount to show badge count immediately
+  // Fetch on mount
   useEffect(() => {
     if (!admin?.token || fetched) return;
     setFetched(true);
@@ -88,7 +92,20 @@ export default function Topbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const totalNotifications = lowStockProducts.length + recentUsers.length;
+  const handleBellOpen = () => {
+    const opening = !bellOpen;
+    setBellOpen(opening);
+    // Mark signups as read when opening
+    if (opening) {
+      const now = Date.now();
+      localStorage.setItem(LAST_READ_KEY, String(now));
+      setLastReadAt(now);
+    }
+  };
+
+  // Unread = users created after lastReadAt
+  const unreadSignups = recentUsers.filter(u => new Date(u.created_at).getTime() > lastReadAt);
+  const totalNotifications = unreadSignups.length + lowStockProducts.length;
 
   const glassyBadge = (count: number) => (
     <span
@@ -117,7 +134,7 @@ export default function Topbar() {
         {/* Notifications */}
         <div className="relative" ref={bellRef}>
           <button
-            onClick={() => setBellOpen(prev => !prev)}
+            onClick={handleBellOpen}
             className="relative flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-[#C8874A]/50 hover:text-[#C8874A] transition"
           >
             <FiBell size={15} />
@@ -150,7 +167,7 @@ export default function Topbar() {
                   }`}
                 >
                   Recent Signups
-                  {recentUsers.length > 0 && glassyBadge(recentUsers.length)}
+                  {unreadSignups.length > 0 && glassyBadge(unreadSignups.length)}
                 </button>
                 <button
                   onClick={() => setActiveTab('stock')}
@@ -172,22 +189,33 @@ export default function Topbar() {
                   <div className="px-3 py-6 text-xs text-zinc-400 text-center">No users yet</div>
                 ) : (
                   <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                    {recentUsers.map(user => (
-                      <div key={user.id} className="flex items-center gap-3 px-3 py-2.5">
-                        {user.avatar ? (
-                          <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
-                        ) : (
-                          <div className="w-7 h-7 rounded-full bg-[#C8874A]/10 text-[#C8874A] flex items-center justify-center flex-shrink-0 text-xs font-semibold">
-                            {user.name.charAt(0).toUpperCase()}
+                    {recentUsers.map(user => {
+                      const isUnread = new Date(user.created_at).getTime() > lastReadAt;
+                      return (
+                        <div
+                          key={user.id}
+                          className={`flex items-center gap-3 px-3 py-2.5 relative ${
+                            isUnread ? 'bg-[#C8874A]/5 dark:bg-[#C8874A]/5' : ''
+                          }`}
+                        >
+                          {isUnread && (
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#C8874A] rounded-r-full" />
+                          )}
+                          {user.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full bg-[#C8874A]/10 text-[#C8874A] flex items-center justify-center flex-shrink-0 text-xs font-semibold">
+                              {user.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200 truncate">{user.name}</p>
+                            <p className="text-[10px] text-zinc-400 truncate">{user.email}</p>
                           </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200 truncate">{user.name}</p>
-                          <p className="text-[10px] text-zinc-400 truncate">{user.email}</p>
+                          <span className="text-[10px] text-zinc-400 flex-shrink-0">{timeAgo(user.created_at)}</span>
                         </div>
-                        <span className="text-[10px] text-zinc-400 flex-shrink-0">{timeAgo(user.created_at)}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )
               ) : (
