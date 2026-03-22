@@ -3,12 +3,23 @@ import { FiSun, FiMoon, FiChevronDown, FiLogOut, FiUser } from 'react-icons/fi';
 import Button from '../ui/Button';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 export default function Topbar() {
   const { dark, toggleDark } = useTheme();
   const { admin, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  const pageTitles: Record<string, string> = {
+    products: 'Products',
+    accounts: 'Accounts',
+    analytics: 'Analytics',
+  };
+
+  const currentPage = location.pathname.replace('/', '') || 'products';
+  const pageTitle = pageTitles[currentPage] || 'Dashboard';
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -22,7 +33,7 @@ export default function Topbar() {
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-xl font-medium">Products</h1>
+      <h1 className="text-xl font-medium">{pageTitle}</h1>
 
       <div className="flex items-center gap-3">
         <Button variant="edit" onClick={toggleDark} icon={dark ? <FiSun /> : <FiMoon />}>
