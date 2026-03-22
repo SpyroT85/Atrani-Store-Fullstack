@@ -21,9 +21,10 @@ export default function Sidebar() {
       </div>
       <div className="flex flex-col gap-1 px-3">
         {links.map(link => (
-          <button
+          <a
             key={link.id}
-            onClick={() => navigate(`/${link.id}`)}
+            href={`/${link.id}`}
+            onClick={(e) => { e.preventDefault(); navigate(`/${link.id}`); }}
             className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors text-left w-full ${
               currentPage === link.id
                 ? 'text-[#C8874A] bg-[#C8874A]/8 font-medium'
@@ -32,7 +33,7 @@ export default function Sidebar() {
           >
             {link.icon}
             {link.label}
-          </button>
+          </a>
         ))}
       </div>
     </div>
