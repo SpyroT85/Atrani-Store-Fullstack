@@ -211,6 +211,15 @@ const Navbar = () => {
                     <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '10px', color: '#666', letterSpacing: '0.08em' }}>Signed in as</p>
                     <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px', color: 'white', fontWeight: 600, marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || user.email}</p>
                   </div>
+                  <Link
+                    to="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    style={{ display: 'block', padding: '12px', fontFamily: 'Manrope, sans-serif', fontSize: '11px', letterSpacing: '0.08em', color: 'white', textDecoration: 'none' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  >
+                    My Profile
+                  </Link>
                   <button
                     onClick={() => { logout(); setUserMenuOpen(false); }}
                     className="w-full text-left"
