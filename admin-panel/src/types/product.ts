@@ -12,4 +12,5 @@ export interface Product {
   movement?: string;
   battery?: string;
   waterproof?: string;
+  stock: number;
 }

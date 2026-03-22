@@ -59,9 +59,10 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading,
     movement: initial.movement ?? '',
     battery: initial.battery ?? '',
     waterproof: initial.waterproof ?? '',
+    stock: initial.stock ?? 0,
   });
 
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k: string, v: string | number) => setForm(f => ({ ...f, [k]: v }));
 
   const inputClass = `w-full px-3 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#C8874A]/40 transition`;
 
@@ -118,10 +119,52 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading,
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Code</label>
           <input className={inputClass} value={form.code} onChange={e => set('code', e.target.value)} placeholder="AW1001" disabled={isDemo} />
         </div>
-        <div className="flex flex-col gap-1.5 col-span-2">
+
+        {/* Stock field */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Stock</label>
+          <div className="relative">
+            <input
+              className={inputClass}
+              value={form.stock}
+              onChange={e => set('stock', parseInt(e.target.value) || 0)}
+              placeholder="0"
+              type="number"
+              min="0"
+              disabled={isDemo}
+            />
+            {/* Stock hint */}
+            {!isDemo && (
+              <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold ${
+                form.stock === 0
+                  ? 'text-red-500'
+                  : form.stock < 20
+                  ? 'text-red-500'
+                  : form.stock < 50
+                  ? 'text-[#C8874A]'
+                  : form.stock < 100
+                  ? 'text-[#C8874A]'
+                  : 'text-green-500'
+              }`}>
+                {form.stock === 0
+                  ? 'Out of stock'
+                  : form.stock < 20
+                  ? 'Critical'
+                  : form.stock < 50
+                  ? 'Low'
+                  : form.stock < 100
+                  ? 'Moderate'
+                  : 'In stock'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Slug</label>
           <input className={inputClass} value={form.slug} onChange={e => set('slug', e.target.value)} placeholder="watches-classic" disabled={isDemo} />
         </div>
+
         <div className="flex flex-col gap-1.5 col-span-2">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Image</label>
           <div className="flex items-center gap-3">

@@ -48,6 +48,39 @@ export default function ProductsTable({
     setMultiActive(false);
   };
 
+  const stockBadge = (stock: number) => {
+    if (stock === 0) return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+        Out of stock
+      </span>
+    );
+    if (stock < 20) return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+        Critical · {stock}
+      </span>
+    );
+    if (stock < 50) return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#C8874A]/10 text-[#C8874A]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#C8874A] inline-block" />
+        Low · {stock}
+      </span>
+    );
+    if (stock < 100) return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#C8874A]/10 text-[#C8874A]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#C8874A] inline-block" />
+        Moderate · {stock}
+      </span>
+    );
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+        In stock · {stock}
+      </span>
+    );
+  };
+
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
       {/* Header */}
@@ -92,17 +125,18 @@ export default function ProductsTable({
           <thead>
             <tr className="border-b border-zinc-200 dark:border-zinc-800">
               {multiActive && (
-                  <th className="px-5 py-3 w-12 text-left">
-                    <Checkbox
-                      checked={selected.length === products.length && products.length > 0}
-                      onChange={checked => setSelected(checked ? products.map(p => p.id) : [])}
-                    />
-                  </th>
+                <th className="px-5 py-3 w-12 text-left">
+                  <Checkbox
+                    checked={selected.length === products.length && products.length > 0}
+                    onChange={checked => setSelected(checked ? products.map(p => p.id) : [])}
+                  />
+                </th>
               )}
-              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[35%]">Name</th>
-              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[20%] align-middle">Category</th>
-              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[15%]">Price</th>
-              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[15%]">Code</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[28%]">Name</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[18%]">Category</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[12%]">Price</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[12%]">Code</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-zinc-400 w-[20%]">Stock</th>
               <th className="px-5 py-3 text-center text-xs font-medium text-zinc-400 w-[10%] pr-1">Actions</th>
             </tr>
           </thead>
@@ -110,18 +144,18 @@ export default function ProductsTable({
             {products.map(product => (
               <tr key={product.id} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 {multiActive && (
-                    <td className="px-5 py-3 w-12">
-                      <Checkbox
-                        checked={selected.includes(product.id)}
-                        onChange={checked => {
-                          setSelected(prev =>
-                            checked
-                              ? [...prev, product.id]
-                              : prev.filter(id => id !== product.id)
-                          );
-                        }}
-                      />
-                    </td>
+                  <td className="px-5 py-3 w-12">
+                    <Checkbox
+                      checked={selected.includes(product.id)}
+                      onChange={checked => {
+                        setSelected(prev =>
+                          checked
+                            ? [...prev, product.id]
+                            : prev.filter(id => id !== product.id)
+                        );
+                      }}
+                    />
+                  </td>
                 )}
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
@@ -143,6 +177,7 @@ export default function ProductsTable({
                 </td>
                 <td className="px-5 py-3">€{parseFloat(product.price).toLocaleString('el-GR')}</td>
                 <td className="px-5 py-3 text-zinc-400">{product.code}</td>
+                <td className="px-5 py-3">{stockBadge(product.stock ?? 0)}</td>
                 <td className="px-5 py-3 text-center pr-1">
                   <ActionMenu
                     onEdit={() => onEdit(product)}
@@ -153,7 +188,6 @@ export default function ProductsTable({
               </tr>
             ))}
           </tbody>
-          {/* tfoot removed as per user request */}
         </table>
       </div>
 

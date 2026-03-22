@@ -3,6 +3,14 @@ import type { Product } from '../types/product';
 
 const API_URL = 'https://api.spyros-tserkezos.dev';
 
+export interface LowStockProduct {
+  id: number;
+  name: string;
+  image_url: string;
+  stock: number;
+  category: string;
+}
+
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +43,18 @@ export function useProducts() {
       alert('Failed to delete product');
     }
   };
-  
 
-  return { products, loading, error, deleteProduct, setProducts };
+  const fetchLowStock = async (token: string, threshold = 10): Promise<LowStockProduct[]> => {
+    try {
+      const res = await fetch(`${API_URL}/api/products/low-stock?threshold=${threshold}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  };
+
+  return { products, loading, error, deleteProduct, setProducts, fetchLowStock };
 }
