@@ -28,9 +28,9 @@ function Dashboard() {
 
   useEffect(() => {
     const titles: Record<string, string> = {
-      products: 'Atrani Admin | Products',
-      accounts: 'Atrani Admin | Accounts',
-      analytics: 'Atrani Admin | Analytics',
+      products: 'Products | Atrani Admin',
+      accounts: 'Accounts | Atrani Admin',
+      analytics: 'Analytics | Atrani Admin',
     };
     document.title = titles[currentPage] || 'Atrani Admin';
   }, [currentPage]);
