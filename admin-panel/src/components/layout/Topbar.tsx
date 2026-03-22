@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FiSun, FiMoon, FiChevronDown, FiLogOut, FiUser } from 'react-icons/fi';
+import { FiSun, FiMoon, FiChevronDown, FiLogOut, FiUser, FiBell } from 'react-icons/fi';
 import Button from '../ui/Button';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -9,7 +9,9 @@ export default function Topbar() {
   const { dark, toggleDark } = useTheme();
   const { admin, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const pageTitles: Record<string, string> = {
@@ -23,9 +25,8 @@ export default function Topbar() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) setBellOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -40,13 +41,36 @@ export default function Topbar() {
           {dark ? 'Light' : 'Dark'}
         </Button>
 
+        {/* Notifications */}
+        <div className="relative" ref={bellRef}>
+          <button
+            onClick={() => setBellOpen(!bellOpen)}
+            className="relative flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-[#C8874A]/50 hover:text-[#C8874A] transition"
+          >
+            <FiBell size={15} />
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#C8874A] rounded-full" />
+          </button>
+
+          {bellOpen && (
+            <div className="absolute right-0 top-full mt-1 w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="px-3 py-2.5 border-b border-zinc-100 dark:border-zinc-800">
+                <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200">Notifications</p>
+              </div>
+              <div className="px-3 py-4 text-xs text-zinc-400 text-center">
+                No new notifications
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User dropdown */}
         <div className="relative" ref={ref}>
           <button
             onClick={() => setOpen(!open)}
             className="flex items-center gap-2 text-sm px-2 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-[#C8874A]/50 transition"
           >
             <span className="w-6 h-6 rounded-full bg-[#C8874A]/10 text-[#C8874A] flex items-center justify-center">
-              <FiUser size={18} />
+              <FiUser size={14} />
             </span>
             <FiChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
           </button>

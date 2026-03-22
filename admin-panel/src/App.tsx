@@ -26,6 +26,15 @@ function Dashboard() {
 
   const currentPage = location.pathname.replace('/', '') || 'products';
 
+  const [collapsed, setCollapsed] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
+  const handleToggle = () => {
+    setAnimating(true);
+    setCollapsed(c => !c);
+    setTimeout(() => setAnimating(false), 350);
+  };
+
   useEffect(() => {
     const titles: Record<string, string> = {
       products: 'Products | Atrani Admin',
@@ -139,8 +148,8 @@ function Dashboard() {
         </div>
       ) : (
         <>
-          <Sidebar />
-          <div className="flex-1 p-8 overflow-auto">
+          <Sidebar collapsed={collapsed} onToggle={handleToggle} />
+          <div className="flex-1 p-8 overflow-auto min-w-0">
             <Topbar />
 
             {currentPage === 'products' && (
@@ -168,7 +177,7 @@ function Dashboard() {
             )}
 
             {currentPage === 'accounts' && <Accounts />}
-            {currentPage === 'analytics' && <Analytics />}
+            {currentPage === 'analytics' && <Analytics animating={animating} />}
 
             {confirmModal && (
               <ConfirmModal

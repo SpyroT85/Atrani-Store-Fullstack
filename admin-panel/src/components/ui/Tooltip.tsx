@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface TooltipProps {
   text: string;
@@ -6,75 +7,75 @@ interface TooltipProps {
   position?: "top" | "bottom" | "left" | "right";
 }
 
-export default function Tooltip({ text, children, position = "bottom" }: TooltipProps) {
-  const [visible, setVisible] = useState(false);
+export default function Tooltip({ text, children, position = "right" }: TooltipProps) {
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-
-    const show = () => {
-      timeout.current = setTimeout(() => setVisible(true), 100);
-    };
-  const hide = () => {
-    if (timeout.current) clearTimeout(timeout.current);
-    setVisible(false);
+  const show = () => {
+    timeout.current = setTimeout(() => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setCoords({
+          top: rect.top + rect.height / 2,
+          left: rect.right + 8,
+        });
+      }
+    }, 100);
   };
 
-  const positionStyles: Record<string, React.CSSProperties> = {
-    top:    { bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-70%)" },
-    bottom: { top:    "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" },
-    left:   { right:  "calc(100% + 8px)", top:  "50%", transform: "translateY(-50%)" },
-    right:  { left:   "calc(100% + 8px)", top:  "50%", transform: "translateY(-50%)" },
+  const hide = () => {
+    if (timeout.current) clearTimeout(timeout.current);
+    setCoords(null);
   };
 
   return (
-    <div
-      style={{ position: "relative", display: "inline-block" }}
-      onMouseEnter={show}
-      onMouseLeave={hide}
-    >
-      {children}
+    <>
+      <div
+        ref={containerRef}
+        style={{ display: "block", width: "100%" }}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+      >
+        {children}
+      </div>
 
-      {visible && (
+      {coords && createPortal(
         <div
           style={{
-            position: "absolute",
-            ...positionStyles[position],
-            backgroundColor: "#A68B5B",
-            color: "#FAF7F3",
-            fontSize: "0.75rem",
-            fontFamily: "Manrope, sans-serif",
+            position: "fixed",
+            top: coords.top,
+            left: coords.left,
+            transform: "translateY(-50%)",
+            background: "rgba(200,135,74,0.12)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(200,135,74,0.3)",
+            color: "#C8874A",
+            fontSize: "0.7rem",
             fontWeight: 600,
             letterSpacing: "0.08em",
-            whiteSpace: 'normal',
-            maxWidth: '140px',
-            textAlign: 'center',
-            padding: "8px 14px",
-            borderRadius: "10px",
+            whiteSpace: 'nowrap',
+            padding: "6px 12px",
+            borderRadius: "8px",
             pointerEvents: "none",
-            opacity: visible ? 1 : 0,
-            transition: "opacity 0.2s ease",
-            zIndex: 50,
+            zIndex: 9999,
+            boxShadow: "0 4px 16px rgba(200,135,74,0.15)",
           }}
         >
           {text}
-          {/* Arrow */}
           <div style={{
             position: "absolute",
-            ...(position === "top"
-              ? { top: "100%", left: "71%", transform: "translateX(-50%)", borderTop:    "5px solid #A68B5B", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" }
-              : {}),
-            ...(position === "bottom"
-              ? { bottom: "100%", left: "50%", transform: "translateX(-50%)", borderBottom: "5px solid #A68B5B", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" }
-              : {}),
-            ...(position === "left"
-              ? { left: "100%",  top:  "50%", transform: "translateY(-50%)", borderLeft:   "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" }
-              : {}),
-            ...(position === "right"
-              ? { right: "100%", top:  "50%", transform: "translateY(-50%)", borderRight:  "5px solid #2a2a2a", borderTop:  "5px solid transparent", borderBottom: "5px solid transparent" }
-              : {}),
+            right: "100%",
+            top: "50%",
+            transform: "translateY(-50%)",
+            borderRight: "5px solid rgba(200,135,74,0.4)",
+            borderTop: "5px solid transparent",
+            borderBottom: "5px solid transparent",
           }} />
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 }

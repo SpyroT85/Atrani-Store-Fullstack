@@ -6,7 +6,6 @@ import {
   PieChart, Pie, Cell, Legend
 } from 'recharts';
 
-
 const MOCK_STATS = {
   totalProducts: 24,
   totalUsers: 142,
@@ -28,7 +27,11 @@ const MOCK_STATS = {
   ],
 };
 
-export default function Analytics() {
+interface AnalyticsProps {
+  animating?: boolean;
+}
+
+export default function Analytics({ animating }: AnalyticsProps) {
   const { admin } = useAuth();
   const isDemo = admin?.role === 'demo';
   const [stats, setStats] = useState<typeof MOCK_STATS | null>(null);
@@ -47,6 +50,8 @@ export default function Analytics() {
   if (loading) return <div className="text-zinc-400 py-8 text-center">Loading...</div>;
   if (!stats) return null;
 
+  if (animating) return <div style={{ minHeight: '600px' }} />;
+
   return (
     <div className="flex flex-col gap-6">
       {/* Stat Cards */}
@@ -64,7 +69,7 @@ export default function Analytics() {
       {/* Categories Bar Chart */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6">
         <h2 className="text-sm font-medium mb-4">Products by Category</h2>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={220} debounce={50}>
           <BarChart data={stats.categoriesBreakdown} barSize={32}>
             <XAxis dataKey="category" tick={{ fontSize: 13 }} />
             <YAxis tick={{ fontSize: 13 }} />
@@ -77,7 +82,7 @@ export default function Analytics() {
       {/* Categories Pie Chart */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6">
         <h2 className="text-sm font-medium mb-4">Category Distribution</h2>
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={260} debounce={50}>
           <PieChart>
             <Pie
               data={stats.categoriesBreakdown}
@@ -108,7 +113,7 @@ export default function Analytics() {
       {/* Users Line Chart */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6">
         <h2 className="text-sm font-medium mb-4">New Users (Last 30 days)</h2>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={220} debounce={50}>
           <LineChart data={stats.recentUsers}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
             <XAxis dataKey="date" tick={{ fontSize: 13 }} />
