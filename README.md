@@ -1,4 +1,4 @@
-# Atrani Watches — Full Stack E-Commerce Platform
+# Atrani Watches - Full Stack E-Commerce Platform
 
 A production-ready full-stack e-commerce platform for a luxury watches and fine writing instruments brand. Built with a React storefront, a Node.js/Express REST API, and a custom admin panel — all connected to a PostgreSQL database hosted on Neon.
 
@@ -25,7 +25,7 @@ atrani-watches/
 
 ---
 
-## Frontend — Customer Storefront
+## Frontend - Customer Storefront
 
 The public-facing store where customers browse products, create accounts, and manage their profiles.
 
@@ -47,13 +47,13 @@ React 18, TypeScript, Vite, Tailwind CSS, React Router
 
 ---
 
-## Backend — REST API
+## Backend - REST API
 
 A Node.js/Express server that powers both the storefront and the admin panel.
 
 **Tech:** Node.js, Express, PostgreSQL (Neon), Prisma-compatible schema, bcrypt, JSON Web Tokens, Passport.js, Cloudinary, Brevo, Multer
 
-**Architecture:** Modular route structure — no monolithic index.js
+**Architecture:** Modular route structure - no monolithic index.js
 
 ```
 backend/
@@ -111,7 +111,7 @@ backend/
 
 ## Admin Panel
 
-A full-featured dashboard for managing the store — built as a completely separate React app.
+A full featured dashboard for managing the store, built as a completely separate React app.
 
 **Tech:** React 18, TypeScript, Vite, Tailwind CSS, React Router, Recharts
 
