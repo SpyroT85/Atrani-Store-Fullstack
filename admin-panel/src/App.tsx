@@ -14,15 +14,17 @@ import ProductsTable from './components/features/ProductsTable';
 import type { Product } from './types/product';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import AcceptInvite from './pages/AcceptInvite';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 const API_URL = 'https://api.spyros-tserkezos.dev';
 
-export default function App() {
+function Dashboard() {
   const { products, loading, error, deleteProduct, setProducts } = useProductsContext();
   const { admin } = useAuth();
+  const location = useLocation();
   const isDemo = !admin || (admin.role !== 'admin' && admin.role !== 'superadmin');
-  const [currentPage, setCurrentPage] = useState('products');
+
+  const currentPage = location.pathname.replace('/', '') || 'products';
 
   const [confirmModal, setConfirmModal] = useState<{ id: number; name: string } | null>(null);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
@@ -119,74 +121,81 @@ export default function App() {
   );
 
   return (
-    <Routes>
-      <Route path="/accept-invite" element={<AcceptInvite />} />
-      <Route path="/*" element={
-        <ProtectedRoute>
-          <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-[Inter]">
-            {error ? (
-              <div className="flex items-center justify-center w-full min-h-screen text-red-500">{error}</div>
-            ) : loading ? (
-              <div className="flex items-center justify-center w-full min-h-screen">
-                <ImSpinner8 className="spinner text-[#C8874A]" size={48} />
-              </div>
-            ) : (
+    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-[Inter]">
+      {error ? (
+        <div className="flex items-center justify-center w-full min-h-screen text-red-500">{error}</div>
+      ) : loading ? (
+        <div className="flex items-center justify-center w-full min-h-screen">
+          <ImSpinner8 className="spinner text-[#C8874A]" size={48} />
+        </div>
+      ) : (
+        <>
+          <Sidebar />
+          <div className="flex-1 p-8 overflow-auto">
+            <Topbar />
+
+            {currentPage === 'products' && (
               <>
-                <Sidebar page={currentPage} onNavigate={setCurrentPage} />
-                <div className="flex-1 p-8 overflow-auto">
-                  <Topbar />
-
-                  {currentPage === 'products' && (
-                    <>
-                      <StatsCards />
-                      <ProductsTable
-                        products={paginatedProducts}
-                        onDelete={handleDeleteRequest}
-                        onEdit={setEditProduct}
-                        onAdd={handleOpenAdd}
-                        categoryFilter={categoryFilter}
-                        onCategoryChange={handleCategoryChange}
-                        search={search}
-                        onSearch={handleSearch}
-                        page={page}
-                        totalPages={totalPages}
-                        pageSize={pageSize}
-                        totalProducts={filteredProducts.length}
-                        onPageChange={setPage}
-                        onPageSizeChange={handlePageSizeChange}
-                        isDemo={isDemo}
-                        token={admin?.token}
-                      />
-                    </>
-                  )}
-
-                  {currentPage === 'accounts' && <Accounts />}
-                  {currentPage === 'analytics' && <Analytics />}
-
-                  {confirmModal && (
-                    <ConfirmModal
-                      message={`Are you sure you want to delete "${confirmModal.name}"?`}
-                      onConfirm={handleConfirmDelete}
-                      onCancel={() => setConfirmModal(null)}
-                      isDemo={isDemo}
-                    />
-                  )}
-
-                  {addOpen && (
-                    <Modal title="Add product" onClose={() => setAddOpen(false)}>
-                      <ProductForm onSubmit={handleAdd} onCancel={() => setAddOpen(false)} loading={saving} token={admin?.token} isDemo={isDemo} />
-                    </Modal>
-                  )}
-
-                  {editProduct && (
-                    <Modal title="Edit product" onClose={() => setEditProduct(null)}>
-                      <ProductForm initial={editProduct} onSubmit={handleEdit} onCancel={() => setEditProduct(null)} loading={saving} token={admin?.token} isDemo={isDemo} />
-                    </Modal>
-                  )}
-                </div>
+                <StatsCards />
+                <ProductsTable
+                  products={paginatedProducts}
+                  onDelete={handleDeleteRequest}
+                  onEdit={setEditProduct}
+                  onAdd={handleOpenAdd}
+                  categoryFilter={categoryFilter}
+                  onCategoryChange={handleCategoryChange}
+                  search={search}
+                  onSearch={handleSearch}
+                  page={page}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  totalProducts={filteredProducts.length}
+                  onPageChange={setPage}
+                  onPageSizeChange={handlePageSizeChange}
+                  isDemo={isDemo}
+                  token={admin?.token}
+                />
               </>
             )}
+
+            {currentPage === 'accounts' && <Accounts />}
+            {currentPage === 'analytics' && <Analytics />}
+
+            {confirmModal && (
+              <ConfirmModal
+                message={`Are you sure you want to delete "${confirmModal.name}"?`}
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setConfirmModal(null)}
+                isDemo={isDemo}
+              />
+            )}
+
+            {addOpen && (
+              <Modal title="Add product" onClose={() => setAddOpen(false)}>
+                <ProductForm onSubmit={handleAdd} onCancel={() => setAddOpen(false)} loading={saving} token={admin?.token} isDemo={isDemo} />
+              </Modal>
+            )}
+
+            {editProduct && (
+              <Modal title="Edit product" onClose={() => setEditProduct(null)}>
+                <ProductForm initial={editProduct} onSubmit={handleEdit} onCancel={() => setEditProduct(null)} loading={saving} token={admin?.token} isDemo={isDemo} />
+              </Modal>
+            )}
           </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/accept-invite" element={<AcceptInvite />} />
+      <Route path="/" element={<Navigate to="/products" replace />} />
+      <Route path="/*" element={
+        <ProtectedRoute>
+          <Dashboard />
         </ProtectedRoute>
       } />
     </Routes>
