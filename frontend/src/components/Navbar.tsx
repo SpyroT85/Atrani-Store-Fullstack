@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FiUser } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './ui/AuthModal';
@@ -18,6 +18,7 @@ import Tooltip from './Tooltip';
 
 const Navbar = () => {
 
+
   const { user, logout } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -25,6 +26,18 @@ const Navbar = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const { items, updateQty, removeItem, removeAll } = useCart();
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -190,7 +203,7 @@ const Navbar = () => {
             </a>
 
             {/* User icon */}
-            <div className="relative flex items-center">
+            <div className="relative flex items-center" ref={userMenuRef}>
               <Tooltip text={user ? user.name : 'Sign In'} position="bottom">
                 <button
                   onClick={() => user ? setUserMenuOpen(!userMenuOpen) : setAuthOpen(true)}
