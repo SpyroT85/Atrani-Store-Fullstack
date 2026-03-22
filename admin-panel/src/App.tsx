@@ -1,6 +1,6 @@
 import Analytics from './components/features/Analytics';
 import { ImSpinner8 } from 'react-icons/im';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import ConfirmModal from './components/modals/ConfirmModal';
 import Modal from './components/modals/Modal';
 import ProductForm from './components/modals/ProductForm';
@@ -25,6 +25,15 @@ function Dashboard() {
   const isDemo = !admin || (admin.role !== 'admin' && admin.role !== 'superadmin');
 
   const currentPage = location.pathname.replace('/', '') || 'products';
+
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      products: 'Products — Atrani Admin',
+      accounts: 'Accounts — Atrani Admin',
+      analytics: 'Analytics — Atrani Admin',
+    };
+    document.title = titles[currentPage] || 'Atrani Admin';
+  }, [currentPage]);
 
   const [confirmModal, setConfirmModal] = useState<{ id: number; name: string } | null>(null);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
