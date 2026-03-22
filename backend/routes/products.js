@@ -35,6 +35,20 @@ module.exports = (pool) => {
     }
   });
 
+  // Get low stock products (below threshold)
+  router.get('/low-stock', authMiddleware, async (req, res) => {
+    const threshold = parseInt(req.query.threshold) || 10;
+    try {
+      const result = await pool.query(
+        'SELECT id, name, image_url, stock, category FROM products WHERE stock < $1 ORDER BY stock ASC',
+        [threshold]
+      );
+      res.json(result.rows);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Get single product by slug
   router.get('/:slug', async (req, res) => {
     const { slug } = req.params;
@@ -60,11 +74,11 @@ module.exports = (pool) => {
 
   // Add product
   router.post('/', authMiddleware, requireAdmin, async (req, res) => {
-    const { name, category, price, image_url, description, code, slug, material, water_resistance, movement, battery, waterproof } = req.body;
+    const { name, category, price, image_url, description, code, slug, material, water_resistance, movement, battery, waterproof, stock } = req.body;
     try {
       const result = await pool.query(
-        'INSERT INTO products (name, category, price, image_url, description, code, slug, material, water_resistance, movement, battery, waterproof) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
-        [name, category, parseFloat(price) || 0, image_url, description, code || null, slug || null, material || null, water_resistance || null, movement || null, battery || null, waterproof || null]
+        'INSERT INTO products (name, category, price, image_url, description, code, slug, material, water_resistance, movement, battery, waterproof, stock) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
+        [name, category, parseFloat(price) || 0, image_url, description, code || null, slug || null, material || null, water_resistance || null, movement || null, battery || null, waterproof || null, parseInt(stock) || 0]
       );
       res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -75,11 +89,11 @@ module.exports = (pool) => {
   // Edit product
   router.put('/:id', authMiddleware, requireAdmin, async (req, res) => {
     const { id } = req.params;
-    const { name, category, price, image_url, description, code, slug, material, water_resistance, movement, battery, waterproof } = req.body;
+    const { name, category, price, image_url, description, code, slug, material, water_resistance, movement, battery, waterproof, stock } = req.body;
     try {
       const result = await pool.query(
-        'UPDATE products SET name=$1, category=$2, price=$3, image_url=$4, description=$5, code=$6, slug=$7, material=$8, water_resistance=$9, movement=$10, battery=$11, waterproof=$12 WHERE id=$13 RETURNING *',
-        [name, category, parseFloat(price) || 0, image_url, description, code || null, slug || null, material || null, water_resistance || null, movement || null, battery || null, waterproof || null, id]
+        'UPDATE products SET name=$1, category=$2, price=$3, image_url=$4, description=$5, code=$6, slug=$7, material=$8, water_resistance=$9, movement=$10, battery=$11, waterproof=$12, stock=$13 WHERE id=$14 RETURNING *',
+        [name, category, parseFloat(price) || 0, image_url, description, code || null, slug || null, material || null, water_resistance || null, movement || null, battery || null, waterproof || null, parseInt(stock) || 0, id]
       );
       res.json(result.rows[0]);
     } catch (err) {

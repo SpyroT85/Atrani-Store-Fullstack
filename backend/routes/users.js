@@ -77,6 +77,23 @@ module.exports = (pool) => {
     }
   });
 
+  // Recent users for notifications — MUST be before /:id routes
+  router.get('/recent', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'No token' });
+
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+      const result = await pool.query(
+        'SELECT id, name, email, avatar, created_at FROM users ORDER BY created_at DESC LIMIT 5'
+      );
+      res.json(result.rows);
+    } catch {
+      res.status(403).json({ error: 'Invalid token' });
+    }
+  });
+
   // Me
   router.get('/me', async (req, res) => {
     const authHeader = req.headers['authorization'];
