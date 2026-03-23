@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FiTrash2, FiMail, FiX, FiUser, FiMoreVertical, FiEdit2 } from 'react-icons/fi';
+import { ImSpinner8 } from 'react-icons/im';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../ui/Button';
 import FilterDropdown from '../ui/FilterDropdown';
@@ -293,7 +294,7 @@ export default function Accounts() {
           />
           <div className="ml-auto flex items-center gap-3">
             <SortDropdown value={sort} onChange={setSort} options={ACCOUNT_SORT_OPTIONS} />
-            <Button variant="primary" icon={<FiMail size={13} />} onClick={isDemo ? undefined : () => setInviteOpen(true)} disabled={isDemo}>
+            <Button data-cy="invite-btn" variant="primary" icon={<FiMail size={13} />} onClick={isDemo ? undefined : () => setInviteOpen(true)} disabled={isDemo}>
               Invite
             </Button>
           </div>
@@ -309,7 +310,11 @@ export default function Accounts() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={4} className="text-center py-8 text-zinc-400">Loading...</td></tr>
+              <tr>
+                <td colSpan={4} className="text-center py-12">
+                  <ImSpinner8 className="animate-spin text-3xl text-[#C8874A] mx-auto" />
+                </td>
+              </tr>
             ) : paginatedAdmins.map(a => (
               <tr key={a.id} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 <td className="px-5 py-3">
@@ -369,7 +374,7 @@ export default function Accounts() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-zinc-500">Role</label>
-                <select className={inputClass} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+                <select data-cy="invite-role" className={inputClass} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
                   <option value="superadmin">Super Admin</option>
                   <option value="admin">Admin</option>
                   <option value="demo">Demo</option>
@@ -379,7 +384,7 @@ export default function Accounts() {
               {success && <p className="text-xs text-green-500">Invite sent successfully!</p>}
               <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
                 <Button variant="edit" onClick={() => { setInviteOpen(false); setSuccess(false); setError(''); }}>Cancel</Button>
-                <Button variant="primary" onClick={handleInvite}>{saving ? 'Sending...' : 'Send Invite'}</Button>
+                <Button data-cy="invite-submit" variant="primary" onClick={handleInvite}>{saving ? 'Sending...' : 'Send Invite'}</Button>
               </div>
             </div>
           </div>

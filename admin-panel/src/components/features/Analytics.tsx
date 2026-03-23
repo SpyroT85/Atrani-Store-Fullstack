@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ImSpinner8 } from 'react-icons/im';
 import { useAuth } from '../../context/AuthContext';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -47,7 +48,11 @@ export default function Analytics({ animating }: AnalyticsProps) {
     setLoading(false);
   }, []);
 
-  if (loading) return <div className="text-zinc-400 py-8 text-center">Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[300px]">
+      <ImSpinner8 className="animate-spin text-3xl text-[#C8874A] mx-auto" />
+    </div>
+  );
   if (!stats) return null;
 
   if (animating) return <div style={{ minHeight: '600px' }} />;

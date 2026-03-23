@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FiSun, FiMoon, FiChevronDown, FiLogOut, FiUser, FiBell } from 'react-icons/fi';
+import { ImSpinner8 } from 'react-icons/im';
 import Button from '../ui/Button';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -183,7 +184,9 @@ export default function Topbar() {
               </div>
 
               {loading ? (
-                <div className="px-3 py-6 text-xs text-zinc-400 text-center">Loading...</div>
+                <div className="flex items-center justify-center min-h-[120px]">
+                  <ImSpinner8 className="animate-spin text-2xl text-[#C8874A] mx-auto" />
+                </div>
               ) : activeTab === 'signups' ? (
                 recentUsers.length === 0 ? (
                   <div className="px-3 py-6 text-xs text-zinc-400 text-center">No users yet</div>
