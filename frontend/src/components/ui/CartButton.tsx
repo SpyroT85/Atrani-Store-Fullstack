@@ -11,9 +11,13 @@ interface CartButtonProps {
   productCategory?: string;
   stock?: number;
   className?: string;
+  "data-cy"?: string; // Testing attribute for Cypress
 }
 
-const CartButton: React.FC<CartButtonProps> = ({ productId, productName, productPrice, productImage, productCategory, stock, className }) => {
+const CartButton: React.FC<CartButtonProps> = ({ 
+  productId, productName, productPrice, productImage, 
+  productCategory, stock, className, "data-cy": dataCy 
+}) => {
   const { addItem, removeItem, items } = useCart();
   const currentQty = items.find((i: { id: string; qty: number }) => i.id === productId)?.qty ?? 0;
   const isOutOfStock = stock !== undefined && stock === 0;
@@ -35,6 +39,7 @@ const CartButton: React.FC<CartButtonProps> = ({ productId, productName, product
     addItem({ id: productId, name: productName, price: productPrice, image: productImage, category: productCategory });
   };
 
+  // STATE 1: OUT OF STOCK
   if (isOutOfStock) {
     return (
       <div className={className} style={{ width: '210px', display: 'inline-block' }}>
@@ -42,10 +47,10 @@ const CartButton: React.FC<CartButtonProps> = ({ productId, productName, product
           variant="default"
           disabled
           className={buttonStyles}
+          data-cy="out-of-stock-btn"
           style={{
             ...buttonPadding,
             backgroundColor: 'rgba(184, 158, 111, 0.6)',
-            opacity: 2.2,
             cursor: 'not-allowed',
           }}
         >
@@ -58,10 +63,17 @@ const CartButton: React.FC<CartButtonProps> = ({ productId, productName, product
     );
   }
 
+  // STATE 2: ADD TO CART (Initial state)
   if (currentQty === 0) {
     return (
       <div className={className} style={{ width: '210px', display: 'inline-block' }}>
-        <Button variant="default" className={buttonStyles} style={buttonPadding} onClick={handleAdd}>
+        <Button 
+          variant="default" 
+          className={buttonStyles} 
+          style={buttonPadding} 
+          onClick={handleAdd}
+          data-cy={dataCy || "add-to-cart-btn"} // Uses the prop passed from parent
+        >
           <span className="flex items-center gap-2" style={{ width: '100%', justifyContent: 'center', display: 'inline-flex' }}>
             <HiShoppingCart size={24} />
             Add to Cart
@@ -71,51 +83,42 @@ const CartButton: React.FC<CartButtonProps> = ({ productId, productName, product
     );
   }
 
+  // STATE 3: IN CART (With plus/minus buttons)
   return (
     <div className={className} style={{ width: '210px', display: 'inline-block' }}>
       <Button variant="default" className={buttonStyles} style={buttonPadding}>
         <span className="flex items-center gap-2" style={{ width: '100%', justifyContent: 'center', display: 'inline-flex' }}>
           <button
             onClick={handleDecrease}
+            data-cy="decrease-qty-btn"
             aria-label="Decrease quantity"
             style={{
               width: '32px', height: '32px',
-              backgroundColor: '#b89e6f',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '20px',
-              fontWeight: 700,
-              cursor: 'pointer',
+              backgroundColor: '#b89e6f', color: '#fff',
+              border: 'none', borderRadius: '6px',
+              fontSize: '20px', fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#a68b5b')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#b89e6f')}
           >
-            <span style={{ color: '#fff' }}>−</span>
+            <span>−</span>
           </button>
+
           <HiShoppingCart size={20} />
-          In Cart ({currentQty})
+          <span data-cy="cart-quantity-text">In Cart ({currentQty})</span>
+
           <button
             onClick={handleIncrease}
+            data-cy="increase-qty-btn" 
             aria-label="Increase quantity"
             style={{
               width: '32px', height: '32px',
-              backgroundColor: '#b89e6f',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '20px',
-              fontWeight: 700,
-              cursor: 'pointer',
+              backgroundColor: '#b89e6f', color: '#fff',
+              border: 'none', borderRadius: '6px',
+              fontSize: '20px', fontWeight: 700, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#a68b5b')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#b89e6f')}
           >
-            <span style={{ color: '#fff' }}>+</span>
+            <span>+</span>
           </button>
         </span>
       </Button>

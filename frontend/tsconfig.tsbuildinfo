@@ -1,0 +1,1 @@
+{"root":["./cypress.config.ts","./vite.config.ts","./cypress/support/commands.ts","./cypress/support/e2e.ts","./src/api/products.ts","./src/hooks/usecart.ts","./src/lib/utils.ts","./src/types/producttypes.ts"],"errors":true,"version":"5.9.3"}

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchProductById } from '@/api/products';
 import NotFound from '@/pages/NotFound/NotFound';
 import { useEffect, useRef, useState } from 'react';
+import { ImSpinner8 } from 'react-icons/im';
 
 interface ProductDetailPageProps {
   category: string;
@@ -42,7 +43,11 @@ export default function ProductDetailPage({ category }: ProductDetailPageProps) 
     });
   }, [product]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <ImSpinner8 className="animate-spin text-4xl text-[#b89e6f]" />
+    </div>
+  );
   if (notFound || !product) return <NotFound />;
 
   const specs: { label: string; value: string }[] = [];

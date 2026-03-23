@@ -206,6 +206,7 @@ const Navbar = () => {
             <div className="relative flex items-center" ref={userMenuRef}>
               <Tooltip text={user ? user.name : 'Sign In'} position="bottom">
                 <button
+                  data-cy="user-icon"
                   onClick={() => user ? setUserMenuOpen(!userMenuOpen) : setAuthOpen(true)}
                   className="transition flex items-center gap-1 cursor-pointer outline-none bg-transparent border-none"
                   style={{ color: 'white' }}
@@ -249,6 +250,7 @@ const Navbar = () => {
             {/* Cart button */}
             <Tooltip text="Cart" position="bottom">
               <button
+                data-cy="cart-icon"
                 onClick={() => setCartOpen(true)}
                 className="transition flex items-center gap-1 cursor-pointer outline-none bg-transparent border-none relative"
                 style={{ color: 'white' }}

@@ -160,7 +160,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={labelStyle}>Email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+                <input type="email" data-cy="auth-email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
               </div>
               {error && <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '11px', color: '#f87171', margin: 0 }}>{error}</p>}
               <button type="submit" disabled={loading} style={{ marginTop: '4px', padding: '14px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}>
@@ -203,7 +203,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={labelStyle}>Email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+                <input type="email" data-cy="auth-email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -217,7 +217,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
                   )}
                 </div>
                 <div style={{ position: 'relative' }}>
-                  <input type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={{ ...inputStyle, paddingRight: '44px' }} />
+                  <input type={showPassword ? 'text' : 'password'} data-cy="auth-password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={{ ...inputStyle, paddingRight: '44px' }} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#666', display: 'flex', alignItems: 'center', padding: 0 }}
                     onMouseEnter={e => (e.currentTarget.style.color = 'white')} onMouseLeave={e => (e.currentTarget.style.color = '#666')}>
@@ -248,7 +248,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
               {error && <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '11px', color: '#f87171', margin: 0 }}>{error}</p>}
 
-              <button type="submit" disabled={loading || !passwordValid}
+              <button type="submit" data-cy="auth-submit" disabled={loading || !passwordValid}
                 style={{ marginTop: '4px', padding: '14px', background: '#a37a41', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', borderRadius: '4px', cursor: loading || !passwordValid ? 'not-allowed' : 'pointer', opacity: loading || !passwordValid ? 0.5 : 1 }}
                 onMouseEnter={e => { if (!loading && passwordValid) e.currentTarget.style.background = '#8a5e3a'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#a37a41'; }}>
