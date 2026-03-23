@@ -42,11 +42,11 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
   const [allProducts, setAllProducts] = useState<FlatProduct[]>([]);
 
   useEffect(() => {
-    fetch('https://api.spyros-tserkezos.dev')
+    fetch('https://api.spyros-tserkezos.dev/api/products')
       .then(res => res.json())
       .then(data => {
         const mapped: FlatProduct[] = data.map((p: any) => ({
-          id: p.id.toString(),
+          id: p.slug ?? p.id.toString(),
           name: p.name,
           price: parseFloat(p.price),
           image: p.image_url,
@@ -58,7 +58,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
   }, []);
 
   const randomProducts = useMemo(() => {
-    const filtered = allProducts.filter(p => p.id !== currentProductId);
+    const filtered = allProducts.filter(p => String(p.id) !== String(currentProductId));
     return shuffleArray(filtered).slice(0, 8);
   }, [allProducts, currentProductId]);
 
@@ -105,6 +105,37 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) =
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    let direction = 1;
+    let userInteracted = false;
+
+    const stopOnInteraction = () => { userInteracted = true; };
+
+    const interval = setInterval(() => {
+      if (userInteracted) return;
+
+      if (direction === 1 && !emblaApi.canScrollNext()) {
+        direction = -1;
+      } else if (direction === -1 && !emblaApi.canScrollPrev()) {
+        direction = 1;
+      }
+
+      if (direction === 1) emblaApi.scrollNext();
+      else emblaApi.scrollPrev();
+    }, 2500);
+
+    emblaApi.on('pointerDown', stopOnInteraction);
+    viewportRef.current?.addEventListener('wheel', stopOnInteraction);
+
+    return () => {
+      clearInterval(interval);
+      emblaApi.off('pointerDown', stopOnInteraction);
+      viewportRef.current?.removeEventListener('wheel', stopOnInteraction);
+    };
   }, [emblaApi]);
 
   const arrowStyle = (active: boolean): React.CSSProperties => ({
