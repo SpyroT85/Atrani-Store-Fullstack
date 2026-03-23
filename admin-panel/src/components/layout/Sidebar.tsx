@@ -114,6 +114,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         style={{ flexShrink: 0, padding: '16px 8px' }}
       >
         <button
+          data-cy="sidebar-collapse"
           onClick={onToggle}
           className={`flex items-center w-full py-2 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-200 ${collapsed ? 'justify-center' : 'justify-start px-12'}`}
         >

@@ -28,11 +28,11 @@ atrani-watches/
 ---
 ## 🧪 E2E Testing Demo
 
-### Storefront Flow
-https://github.com/user-attachments/assets/a47aed58-0aaa-4e34-8b36-11d0c0cb1740
+### Atrani Store
+https://github.com/user-attachments/assets/dce2accf-f6ed-415d-b88e-e5e402fc4278
 
 ### Admin Panel Flow
-https://github.com/user-attachments/assets/c2ef18e7-c282-4583-9347-412db2023199
+https://github.com/user-attachments/assets/46e64073-1048-4c04-b237-aa4e9c49d111
 
 ## Screenshots
 

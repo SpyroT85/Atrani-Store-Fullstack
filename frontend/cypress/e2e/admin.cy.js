@@ -2,7 +2,7 @@ describe('Atrani Admin Panel - Add Product', () => {
 
   it('should login and add a new product', () => {
     // Visit admin panel
-    cy.visit('http://localhost:5175');
+    cy.visit('http://localhost:5173');
     cy.wait(1500);
 
     // Login
@@ -11,6 +11,7 @@ describe('Atrani Admin Panel - Add Product', () => {
     cy.get('input[type="password"]').type('Spyros1985!', { delay: 80 });
     cy.wait(300);
     cy.get('button[type="submit"]').click();
+
     cy.wait(2000);
 
     // Click Add Product button
@@ -54,7 +55,7 @@ describe('Atrani Admin Panel - Add Product', () => {
     cy.wait(1500);
 
     // Click Invite
-    cy.get('[data-cy="invite-btn"]').click({ force: true });
+    cy.get('[data-cy="invite-btn"]', { timeout: 10000 }).click({ force: true });
     cy.wait(800);
 
     // Fill invite form
@@ -65,7 +66,52 @@ describe('Atrani Admin Panel - Add Product', () => {
 
     // Send invite
     cy.get('[data-cy="invite-submit"]').click({ force: true });
-    cy.wait(5000);
+    cy.wait(3000);
+
+    // Close invite modal if still open
+    cy.get('body').then($body => {
+      if ($body.find('[data-cy="invite-submit"]').length) {
+        cy.contains('Cancel').click({ force: true });
+      }
     });
+    cy.wait(500);
+
+    // Collapse the sidebar
+    cy.get('[data-cy="sidebar-collapse"]').click({ force: true });
+    cy.wait(800);
+
+    // Go to Analytics
+    cy.contains('Analytics').click({ force: true });
+    cy.wait(2000);
+
+    // Scroll down slowly
+    cy.scrollTo('bottom', { duration: 2000 });
+    cy.wait(1500);
+
+    // Scroll back up
+    cy.scrollTo('top', { duration: 2000 });
+    cy.wait(1500);
+
+    // Click notification bell
+    cy.get('[data-cy="notification-bell"]', { timeout: 8000 }).click({ force: true });
+    cy.wait(1500);
+
+    // View recent signups
+    cy.contains('Recent Signups').click({ force: true });
+    cy.wait(1500);
+
+    // View low stock
+    cy.contains('Low Stock').click({ force: true });
+    cy.wait(1500);
+
+    // Close notifications
+    cy.get('body').click(0, 0);
+    cy.wait(800);
+
+    // Toggle light mode
+    cy.get('[data-cy="theme-toggle"]', { timeout: 8000 }).click({ force: true });
+    cy.wait(2000);
+
+  });
 
 });

@@ -2,7 +2,7 @@ describe('Atrani Storefront - Full User Flow', () => {
 
   it('should login, browse, add to cart and checkout', () => {
     // Visit homepage
-    cy.visit('/');
+    cy.visit('http://localhost:5174');
     cy.wait(1500);
 
     // Login

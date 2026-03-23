@@ -128,13 +128,14 @@ export default function Topbar() {
       <h1 className="text-xl font-medium">{pageTitle}</h1>
 
       <div className="flex items-center gap-3">
-        <Button variant="edit" onClick={toggleDark} icon={dark ? <FiSun /> : <FiMoon />}>
+        <Button data-cy="theme-toggle" variant="edit" onClick={toggleDark} icon={dark ? <FiSun /> : <FiMoon />}>
           {dark ? 'Light' : 'Dark'}
         </Button>
 
         {/* Notifications */}
         <div className="relative" ref={bellRef}>
           <button
+            data-cy="notification-bell"
             onClick={handleBellOpen}
             className="relative flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-[#C8874A]/50 hover:text-[#C8874A] transition"
           >
