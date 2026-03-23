@@ -113,7 +113,15 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading,
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Price (€)</label>
-          <input className={inputClass} value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.00" type="number" disabled={isDemo} />
+          <input
+            className={inputClass}
+            value={form.price}
+            onChange={e => set('price', e.target.value)}
+            placeholder="0.00"
+            type="text"
+            inputMode="decimal"
+            disabled={isDemo}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Code</label>
@@ -126,16 +134,16 @@ export default function ProductForm({ initial = {}, onSubmit, onCancel, loading,
           <div className="relative">
             <input
               className={inputClass}
-              value={form.stock}
+              value={form.stock === 0 ? '' : form.stock}
               onChange={e => set('stock', parseInt(e.target.value) || 0)}
               placeholder="0"
-              type="number"
-              min="0"
+              type="text"
+              inputMode="numeric"
               disabled={isDemo}
+              style={{ paddingRight: '80px' }}
             />
-            {/* Stock hint */}
             {!isDemo && (
-              <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold ${
+              <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold pointer-events-none ${
                 form.stock === 0
                   ? 'text-red-500'
                   : form.stock < 20

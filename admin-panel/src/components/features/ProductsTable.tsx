@@ -8,6 +8,7 @@ import FilterDropdown from '../ui/FilterDropdown';
 import Pagination from '../ui/Pagination';
 import SearchInput from '../ui/SearchInput';
 import MultiSelect from '../ui/MultiSelect';
+import SortDropdown, { type SortOption } from '../ui/SortDropdown';
 
 interface ProductsTableProps {
   products: Product[];
@@ -28,6 +29,30 @@ interface ProductsTableProps {
   token?: string;
 }
 
+function sortProducts(products: Product[], sort: SortOption): Product[] {
+  const sorted = [...products];
+  switch (sort) {
+    case 'newest':
+      return sorted.sort((a, b) => b.id - a.id);
+    case 'oldest':
+      return sorted.sort((a, b) => a.id - b.id);
+    case 'price_asc':
+      return sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    case 'price_desc':
+      return sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    case 'stock_asc':
+      return sorted.sort((a, b) => (a.stock ?? 0) - (b.stock ?? 0));
+    case 'stock_desc':
+      return sorted.sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0));
+    case 'name_asc':
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    case 'name_desc':
+      return sorted.sort((a, b) => b.name.localeCompare(a.name));
+    default:
+      return sorted;
+  }
+}
+
 export default function ProductsTable({
   products, onDelete, onEdit, onAdd,
   categoryFilter, onCategoryChange,
@@ -39,6 +64,9 @@ export default function ProductsTable({
 }: ProductsTableProps) {
   const [multiActive, setMultiActive] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
+  const [sort, setSort] = useState<SortOption>('newest');
+
+  const sortedProducts = sortProducts(products, sort);
 
   const handleMultiDelete = async () => {
     for (const id of selected) {
@@ -116,7 +144,10 @@ export default function ProductsTable({
             disabled={isDemo}
           />
         </div>
-        <Button variant="primary" icon={<FiPlus />} onClick={onAdd}>Add product</Button>
+        <div className="flex items-center gap-3">
+          <SortDropdown value={sort} onChange={setSort} />
+          <Button variant="primary" icon={<FiPlus />} onClick={onAdd}>Add product</Button>
+        </div>
       </div>
 
       {/* Table */}
@@ -141,7 +172,7 @@ export default function ProductsTable({
             </tr>
           </thead>
           <tbody>
-            {products.map(product => (
+            {sortedProducts.map(product => (
               <tr key={product.id} className="border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 {multiActive && (
                   <td className="px-5 py-3 w-12">

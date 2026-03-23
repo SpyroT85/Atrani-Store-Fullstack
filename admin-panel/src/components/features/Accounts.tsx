@@ -5,6 +5,7 @@ import Button from '../ui/Button';
 import FilterDropdown from '../ui/FilterDropdown';
 import SearchInput from '../ui/SearchInput';
 import Pagination from '../ui/Pagination';
+import SortDropdown, { ACCOUNT_SORT_OPTIONS, type SortOption } from '../ui/SortDropdown';
 
 const API_URL = 'https://api.spyros-tserkezos.dev';
 
@@ -67,6 +68,17 @@ const MOCK_ADMINS: Admin[] = [
   { id: 31, email: 'admin17@atrani.com', role: 'admin', created_at: '2024-04-13T10:00:00Z' },
   { id: 32, email: 'demo14@atrani.com', role: 'demo', created_at: '2024-04-14T10:00:00Z' },
 ];
+
+function sortAdmins(admins: Admin[], sort: SortOption): Admin[] {
+  const sorted = [...admins];
+  switch (sort) {
+    case 'newest': return sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    case 'oldest': return sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    case 'name_asc': return sorted.sort((a, b) => a.email.localeCompare(b.email));
+    case 'name_desc': return sorted.sort((a, b) => b.email.localeCompare(a.email));
+    default: return sorted;
+  }
+}
 
 function AccountMenu({ account, currentAdmin, onDelete, onRoleChange, onInvite }: {
   account: Admin;
@@ -164,20 +176,25 @@ export default function Accounts() {
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('admin'); // default value matches FilterDropdown options
+  const [inviteRole, setInviteRole] = useState('admin');
   const [roleFilter, setRoleFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortOption>('newest');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const filteredAdmins = admins.filter(a => {
-    const matchesSearch = a.email.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = roleFilter === 'all' || a.role === roleFilter;
-    return matchesSearch && matchesRole;
-  });
+  const filteredAdmins = sortAdmins(
+    admins.filter(a => {
+      const matchesSearch = a.email.toLowerCase().includes(search.toLowerCase());
+      const matchesRole = roleFilter === 'all' || a.role === roleFilter;
+      return matchesSearch && matchesRole;
+    }),
+    sort
+  );
+
   const totalPages = Math.ceil(filteredAdmins.length / pageSize);
   const paginatedAdmins = filteredAdmins.slice((page - 1) * pageSize, page * pageSize);
 
@@ -252,7 +269,7 @@ export default function Accounts() {
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 mb-4">
           <span className="text-amber-500">⚠️</span>
           <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-            Demo mode!  Account management is disabled.
+            Demo mode! Account management is disabled.
           </p>
         </div>
       )}
@@ -274,7 +291,8 @@ export default function Accounts() {
             onChange={setSearch}
             placeholder="Search by email..."
           />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            <SortDropdown value={sort} onChange={setSort} options={ACCOUNT_SORT_OPTIONS} />
             <Button variant="primary" icon={<FiMail size={13} />} onClick={isDemo ? undefined : () => setInviteOpen(true)} disabled={isDemo}>
               Invite
             </Button>
@@ -336,7 +354,7 @@ export default function Accounts() {
       </div>
 
       {inviteOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setInviteOpen(false)}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
               <h2 className="text-base font-medium">Send Invite</h2>
@@ -351,11 +369,7 @@ export default function Accounts() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-zinc-500">Role</label>
-                <select
-                  className={inputClass}
-                  value={inviteRole}
-                  onChange={e => setInviteRole(e.target.value)}
-                >
+                <select className={inputClass} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
                   <option value="superadmin">Super Admin</option>
                   <option value="admin">Admin</option>
                   <option value="demo">Demo</option>

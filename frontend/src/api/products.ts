@@ -16,6 +16,7 @@ function mapProduct(p: any) {
     battery: p.battery ?? undefined,
     movement: p.movement ?? undefined,
     waterproof: p.waterproof ?? undefined,
+    stock: p.stock ?? 0,
   };
 }
 

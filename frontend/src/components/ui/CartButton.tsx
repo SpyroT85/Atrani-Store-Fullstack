@@ -9,14 +9,17 @@ interface CartButtonProps {
   productPrice: number;
   productImage?: string;
   productCategory?: string;
+  stock?: number;
   className?: string;
 }
 
-const CartButton: React.FC<CartButtonProps> = ({ productId, productName, productPrice, productImage, productCategory, className }) => {
+const CartButton: React.FC<CartButtonProps> = ({ productId, productName, productPrice, productImage, productCategory, stock, className }) => {
   const { addItem, removeItem, items } = useCart();
   const currentQty = items.find((i: { id: string; qty: number }) => i.id === productId)?.qty ?? 0;
+  const isOutOfStock = stock !== undefined && stock === 0;
 
   const handleAdd = () => {
+    if (isOutOfStock) return;
     addItem({ id: productId, name: productName, price: productPrice, image: productImage, category: productCategory });
   };
 
@@ -24,14 +27,36 @@ const CartButton: React.FC<CartButtonProps> = ({ productId, productName, product
   const buttonPadding = { padding: '2rem 2rem', minWidth: '210px' };
 
   const handleDecrease = () => {
-    if (currentQty > 0) {
-      removeItem(productId);
-    }
+    if (currentQty > 0) removeItem(productId);
   };
 
   const handleIncrease = () => {
+    if (isOutOfStock) return;
     addItem({ id: productId, name: productName, price: productPrice, image: productImage, category: productCategory });
   };
+
+  if (isOutOfStock) {
+    return (
+      <div className={className} style={{ width: '210px', display: 'inline-block' }}>
+        <Button
+          variant="default"
+          disabled
+          className={buttonStyles}
+          style={{
+            ...buttonPadding,
+            backgroundColor: 'rgba(184, 158, 111, 0.6)',
+            opacity: 2.2,
+            cursor: 'not-allowed',
+          }}
+        >
+          <span className="flex items-center gap-2" style={{ width: '100%', justifyContent: 'center', display: 'inline-flex' }}>
+            <HiShoppingCart size={24} />
+            Out of Stock
+          </span>
+        </Button>
+      </div>
+    );
+  }
 
   if (currentQty === 0) {
     return (
