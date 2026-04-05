@@ -15,6 +15,7 @@ import type { Product } from './types/product';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import AcceptInvite from './pages/AcceptInvite';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 
 const API_URL = 'https://api.spyros-tserkezos.dev';
 
@@ -208,14 +209,17 @@ function Dashboard() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/accept-invite" element={<AcceptInvite />} />
-      <Route path="/" element={<Navigate to="/products" replace />} />
-      <Route path="/*" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/accept-invite" element={<AcceptInvite />} />
+        <Route path="/" element={<Navigate to="/products" replace />} />
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+      </Routes>
+      <VercelAnalytics />
+    </>
   );
 }
