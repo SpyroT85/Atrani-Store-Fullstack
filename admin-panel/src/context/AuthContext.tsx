@@ -40,8 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) return false;
 
       const adminData = { id: data.id, email: data.email, role: data.role, token: data.token };
+      console.log('Saving to localStorage:', adminData);
       setAdmin(adminData);
       localStorage.setItem('admin', JSON.stringify(adminData));
+      console.log('Saved:', localStorage.getItem('admin'));
       return true;
     } catch (err) {
       console.error('Login error:', err);
