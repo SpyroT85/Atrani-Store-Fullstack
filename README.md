@@ -9,7 +9,7 @@ A production-ready full-stack e-commerce platform for a luxury watches and fine 
 | Layer | Tech |
 |---|---|
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router |
-| Backend | Node.js, Express, PostgreSQL (Neon), JWT, Passport.js, Cloudinary, Brevo, Multer |
+| Backend | Node.js, Express, PostgreSQL (Supabase), JWT, Passport.js, Cloudinary, Brevo, Multer |
 | Admin Panel | React 18, TypeScript, Vite, Tailwind CSS, Recharts |
 | Database | PostgreSQL on Neon (serverless, EU Central, v17) |
 | Deployment | Vercel (frontend + admin), Render (backend), Cloudinary (images), Brevo (emails) |
