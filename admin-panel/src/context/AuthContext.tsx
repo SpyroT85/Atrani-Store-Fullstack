@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface Admin {
@@ -10,6 +10,7 @@ interface Admin {
 
 interface AuthContextType {
   admin: Admin | null;
+  ready: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
@@ -21,9 +22,13 @@ const API_URL = 'https://api.spyros-tserkezos.dev';
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(() => {
     const saved = localStorage.getItem('admin');
-    console.log('AuthContext init:', saved);
     return saved ? JSON.parse(saved) : null;
   });
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -33,17 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Status:', res.status);
       const data = await res.json();
-      console.log('Data:', data);
-
       if (!res.ok) return false;
 
       const adminData = { id: data.id, email: data.email, role: data.role, token: data.token };
-      console.log('Saving to localStorage:', adminData);
       setAdmin(adminData);
       localStorage.setItem('admin', JSON.stringify(adminData));
-      console.log('Saved:', localStorage.getItem('admin'));
       return true;
     } catch (err) {
       console.error('Login error:', err);
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout }}>
+    <AuthContext.Provider value={{ admin, ready, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
