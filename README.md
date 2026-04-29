@@ -1,6 +1,6 @@
 # Atrani Watches - Full Stack E-Commerce Platform
 
-A production-ready full-stack e-commerce platform for a luxury watches and fine writing instruments brand. Built with a React storefront, a Node.js/Express REST API, and a custom admin panel - all connected to a PostgreSQL database hosted on Neon.
+A production-ready full-stack e-commerce platform for a luxury watches and fine writing instruments brand. Built with a React storefront, a Node.js/Express REST API, and a custom admin panel - all connected to a PostgreSQL database hosted on Supabase.
 
 ---
 
@@ -11,7 +11,7 @@ A production-ready full-stack e-commerce platform for a luxury watches and fine 
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router |
 | Backend | Node.js, Express, PostgreSQL (Supabase), JWT, Passport.js, Cloudinary, Brevo, Multer |
 | Admin Panel | React 18, TypeScript, Vite, Tailwind CSS, Recharts |
-| Database | PostgreSQL on Neon (serverless, EU Central, v17) |
+| Database | PostgreSQL on Supabase (serverless, EU Central, v17) |
 | Deployment | Vercel (frontend + admin), Render (backend), Cloudinary (images), Brevo (emails) |
 
 ---
@@ -159,7 +159,7 @@ backend/
 
 ## Database
 
-PostgreSQL on **Neon** (serverless, EU Central, v17)
+PostgreSQL on **Supabase** (serverless, EU Central, v17)
 
 **Tables:**
 
@@ -214,7 +214,7 @@ cd admin-panel && npm install && npm run dev
 | Backend | Render |
 | Frontend | Vercel |
 | Admin Panel | Vercel |
-| Database | Neon |
+| Database | Supabase |
 | Images | Cloudinary CDN |
 | Emails | Brevo |
 
