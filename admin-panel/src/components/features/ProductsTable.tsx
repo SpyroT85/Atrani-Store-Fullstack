@@ -196,7 +196,10 @@ export default function ProductsTable({
                         : `https://api.spyros-tserkezos.dev${product.image_url}`}
                       alt={product.name}
                       className="w-12 h-12 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700"
-                      onError={e => (e.currentTarget.src = '/placeholder.png')}
+                      onError={e => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://placehold.co/48x48/e4e4e7/a1a1aa?text=?';
+                      }}
                     />
                     <span className="font-medium">{product.name}</span>
                   </div>

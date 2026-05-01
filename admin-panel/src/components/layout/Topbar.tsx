@@ -235,7 +235,10 @@ export default function Topbar() {
                             : `https://api.spyros-tserkezos.dev${product.image_url}`}
                           alt={product.name}
                           className="w-7 h-7 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700 flex-shrink-0"
-                          onError={e => (e.currentTarget.src = '/placeholder.png')}
+                          onError={e => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = 'https://placehold.co/48x48/e4e4e7/a1a1aa?text=?';
+                          }}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200 truncate">{product.name}</p>
