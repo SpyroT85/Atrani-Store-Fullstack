@@ -77,8 +77,8 @@ export default function Topbar() {
     ])
       .then(([usersRes, stockRes]) => Promise.all([usersRes.json(), stockRes.json()]))
       .then(([usersData, stockData]) => {
-        setRecentUsers(usersData);
-        setLowStockProducts(stockData);
+        setRecentUsers(Array.isArray(usersData) ? usersData : []);
+        setLowStockProducts(Array.isArray(stockData) ? stockData : []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
